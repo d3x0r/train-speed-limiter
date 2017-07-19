@@ -1,4 +1,4 @@
-# Upgrade Builder and Planner
+# Train Speed Limter
 
 [Mod Download](https://mods.factorio.com/mods/d3x0r/train-speed-limiter) ![icon](images/thumb.png)
 

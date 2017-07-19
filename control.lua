@@ -1,17 +1,59 @@
 
+--Class 1: 10 mph (16kph) for freight, 15 mph for passenger. Much yard, branch line, short line, and industrial spur trackage falls into category. 
+--Class 2: 25 mph (40kph)  for freight, 30 mph for passenger. Branch lines, secondary main lines, many regional railroads, and some tourist operations frequently fall into this class. Examples are Burlington Northern Santa Fe's branch from Sioux Falls to Madison, S. Dak.; Napa Valley Wine Train's 18-mile ex-SP line between Napa and St. Helena, Calif.; and the entire Strasburg Rail Road, 4 and-a-half miles between Strasburg and Leaman Place, Pa. 
+--Class 3: 40 mph (64kph) for freight, 60 mph for passenger. This commonly includes regional railroads and Class 1 secondary main lines. Examples are BNSF between Spokane and Kettle Falls, Wash.; and Canadian National's Wisconsin Central line between Neenah, Wis., and Sault Ste. Marie, Mich. 
+--Class 4: 60 mph (96kph) for freight, 80 mph for passenger. This is the dominant class for main-line track used in passenger and long-haul freight service. Examples are most of the suburban trackage of Chicago's Metra commuter railroad, including its own Rock Island District west of Blue Island and Milwaukee District West Line west of Bensenville (also a Soo Line freight route); plus BNSF west of Cicero Yard and Union Pacific (former C&NW) west of Proviso Yard; New England Central's entire main line between New London, Conn., and East Alburgh, Vt.; and the Arizona & California (ex-Santa Fe) between Matthie, Ariz., and Cadiz, Calif. 
+--Class 5: 80 mph (128kph) for freight, 90 mph for passenger. This is the standard for most high-speed track in the U.S. Examples are UP's main line between Council Bluffs, Iowa, and North Platte, Neb.; and BNSF between Fullerton and San Diego, Calif., used mostly by Amtrak's Pacific Surfliner trains to San Diego. 
+--Class 6: 110 mph (177kph) for freight, 110 mph for passenger. This is found in the U.S. exclusively on Amtrak's Northeast Corridor between New York and Washington, D.C. Amtrak has also received special "Class 7" status for 125 mph operation and (with the launch of high-speed Acela Express trains) "Class 8" status for 150 mph on specific segments of the corridor. 
 
-local track_types = {  { name = "curved-scrap-rail", max=(0.279933/60.5)*80, q = 0.5 }
-		,  { name = "straight-scrap-rail", max=(0.279933/60.5)*80, q = 0.5 }
-		,  { name = "curved-cement-rail", max=(0.279933/60.5)*720, q = 1.6 }
-		,  { name = "straight-cement-rail", max=(0.279933/60.5)*720, q = 1.6 }
-		,  { name = "curved-rail-power", max=(0.279933/60.5)*360, q = 1.2 }
-		,  { name = "straight-rail-power", max=(0.279933/60.5)*360, q = 1.2 }
-		,  { name = "curved-rail-wood-bridge", max=(0.279933/60.5)*280, q = 0.9 }
-		,  { name = "straight-rail-wood-bridge", max=(0.279933/60.5)*280, q = 0.9 }
-		,  { name = "bridge-curved-rail", max=(0.279933/60.5)*280, q = 0.9 }
-		,  { name = "bridge-straight-rail", max=(0.279933/60.5)*280, q = 0.9 }
-		,  { name = "curved-rail", max=(0.279933/60.5)*360, q = 1 }
-		,  { name = "straight-rail", max=(0.279933/60.5)*360, q = 1 }
+--Class 6	110 mph (177 km/h)
+--Class 7 [us 4]	125 mph (201 km/h)
+--Class 8 [us 5]	160 mph (257 km/h)
+--Class 9 [us 6]	220 mph (354 km/h)
+
+-- 300kmh = 186mph
+
+-- In 1981, the first section of the new Paris–Lyon High-Speed line was inaugurated, 
+-- with a 260 km/h (160 mph) top speed (then 270 km/h (170 mph) soon after). 
+-- Being able to use both dedicated high-speed and conventional lines, the TGV offered 
+-- the ability to join every city in the country at shorter journey times.[19] After 
+-- the introduction of the TGV on some routes, air traffic on these routes decreased 
+-- and in some cases disappeared.[19] The TGV set a publicised speed records in 1981 
+-- at 380 km/h (240 mph), in 1990 at 515 km/h (320 mph), and then in 2007 at 574 km/h (357 mph).
+
+-- 1mph = 1.60934kph
+
+--  Fastest trains
+-- 1. Shanghai Maglev: 267 mph  429 kph
+-- 2. Harmony CRH380A: 236 mph  379 kph
+-- 3. Trenitalia Frecciarossa 1000: 220 mph   354.0548 kph
+
+-- speed of sound  1,235 km/h; 767 mph
+
+-- 
+--   2. The old steam engines were usually run well below 40MPH due to problems with maintaining the tracks
+--    but could go much faster. I seem to recall a 45 mile run before 1900 in which a locomotive pulled a 
+--   train at better than 65MPH... (Stanley Steamer cars were known to exceed 75MPH).
+
+
+local kpt = ( 1000/3600 ) /60; -- km per tick
+local track_types = {  { name = "curved-scrap-rail", max=(kpt)*80, q = 0.5 }  -- 
+		,  { name = "straight-scrap-rail", max=(kpt)*80, q = 0.5 }
+
+		,  { name = "curved-cement-rail", max=(kpt)*720, q = 1.6 }  -- hyperloop speed
+		,  { name = "straight-cement-rail", max=(kpt)*720, q = 1.6 }
+
+		,  { name = "curved-rail-power", max=(kpt)*360, q = 1.2 }
+		,  { name = "straight-rail-power", max=(kpt)*360, q = 1.2 }
+
+		,  { name = "curved-rail-wood-bridge", max=(kpt)*280, q = 0.9 }
+		,  { name = "straight-rail-wood-bridge", max=(kpt)*280, q = 0.9 }
+
+		,  { name = "bridge-curved-rail", max=(kpt)*280, q = 0.9 }
+		,  { name = "bridge-straight-rail", max=(kpt)*280, q = 0.9 }
+
+		,  { name = "curved-rail", max=(kpt)*360, q = 1 }
+		,  { name = "straight-rail", max=(kpt)*360, q = 1 }
 		}
 
 local lastRail = {};
@@ -120,6 +162,10 @@ script.on_load(function()
 	 -- log( "ON LOAD" );
 end)
 
+script.on_configuration_changed( function()
+	log( "CONFIGURATION CHANGED" );
+end)
+
 
 ---------------------------------------------------
 --On research finished
@@ -140,7 +186,12 @@ script.on_event(defines.events.on_tick, function(event)
         end
 	for i=1,#global.trains do
 		if global.trains[i] then
-			limitTrain( event.tick, i, global.trains[i] );		
+			if( global.trains[i].valid ) then
+				limitTrain( event.tick, i, global.trains[i] );		
+			else 
+				log( "skipping train (internal index):".. i );
+				global.trains[i] = nil;
+			end
 		end
 	end
 	--end
@@ -149,6 +200,9 @@ end)
 function limitTrain( tick, index, train ) 
 	local frontRail = train.front_rail;
 	local _lastRail = lastRail[index];
+	local speed = train.speed;
+	
+
 	if( _lastRail ) then
 		if( _lastRail.rail ~= frontRail ) then
 			--if( index == 1 ) then 
@@ -166,34 +220,53 @@ function limitTrain( tick, index, train )
 			end
 		end
 	else 
-		lastRail[index] = { rail=frontRail, tick=tick, type = nil }
+		lastRail[index] = { rail=frontRail, tick=tick, type = nil, speed = speed }
 		_lastRail = lastRail[index];
 	end
 			
 
---	local frontLoco = train.locomotives.front_movers[1];
---	if not frontLoco then
---		frontLoco = train.locomotives.back_movers[1];
---	end
---	if not frontLoco then
---		log( "no movers on this train..." );
---		return
---	end
+	local frontLoco = train.locomotives.front_movers[1];
+	if not frontLoco then
+		frontLoco = train.locomotives.back_movers[1];
+	end
+	if not frontLoco then
+		log( "no movers on this train..." );
+		return
+	end
+	--local currentFuel = frontLoco.get_burnt_result_inventory();
+	local burner = frontLoco.burner;
+	if burner then 
+		local currentFuel = burner.currently_burning;
+		if currentFuel then 
+			log( "burning:".. currentFuel.name.. " amount:".. burner.remaining_burning_fuel  );
+		else
+			--log( "no current fuel." );
+		end
+	end
+	
+	-- vehicle does not mean train... must be car or player
+	--if( index == 2 ) then log( "riding  State:".. tostring(frontLoco.riding_state )); end
 
-	local speed = train.speed;
 	if( speed > 0.001 ) then
-		--log( frontLoco.name.."train speed:".. train.speed );
+		local scalar = 0.1;
+		log( frontLoco.name.."train speed:".. train.speed.."("..(train.speed/kpt)..")"  .. " delta:" .. ((speed-_lastRail.speed)/kpt) .. " fixed accel:"..((speed-_lastRail.speed + (_lastRail.speed*0.0075) )/kpt) );
+		if( speed > _lastRail.speed ) then
+			--speed = speed + ((speed-_lastRail.speed) * 2 );
+			--scalar = 0.2;
+		end
 		for i=1, #track_types do
 			local tt = track_types[i];
 			if( tt.name == frontRail.name ) then
 				_lastRail.type = tt;
 				--log( "train speed:".. train.speed.. "something:".. track_types[i].max );
 				if( speed > tt.max ) then
-					train.speed = speed - (( speed-tt.max ) * 0.1);
+					--speed = speed - (( speed-tt.max ) * scalar);
 				end
-				return;
+				break
 			end
 		end
+		_lastRail.speed = speed;
+		--train.speed = speed;
 	end
 		
 	--log( 'train: '..train.id..'('..frontLoco.name..') is on:'..frontRail.name );
@@ -206,10 +279,55 @@ end
 script.on_event(defines.events.on_train_created, function(event)
 	local train = event.train;
 
-	log( "Created Train:"..tostring(train.locomotives.front_movers[1]).. "id1:"..tostring(event.old_train_id_1).."  id2:"..tostring(event.old_train_id2)  );
+	--log( "Created Train:"..train.id.. " mover:"..tostring(train.locomotives.front_movers[1]).. "  id1:"..tostring(event.old_train_id_1).."   id2:"..tostring(event.old_train_id_2)  );
+	
+	if event.old_train_id_1 then
+		--log( "check total: ".. #global.trains );
+		for i = 1, #global.trains do
+			--log( "check slot: ".. i );
+			if not global.trains[i].valid then
+				--log( " clear slot:"..i );
+				global.trains[i] = nil;
+			end
+		end
+	end
 
-	log( "Inertial stuff:"..train.locomotives.front_movers[1].effectivity_modifier .. "  consump:"..train.locomotives.front_movers[1].consumption_modifier .."  fict:"..train.locomotives.front_movers[1].friction_modifier );
-        _log_keys( "   ", train );
+	local i;
+
+	--local loco = train.locomotives.front_movers[1];
+
+	--log_keys( train.locomotives );
+	--local frontLoco = train.locomotives.front_movers;
+	--if frontLoco then
+	--for i=1, #frontLoco do
+	--	log( "front loco:".. i.."  "..frontLoco[i].name );
+	--end
+	--end
+	--local frontLoco = train.locomotives.back_movers;
+	--if frontLoco then
+	--for i=1, #frontLoco do
+	--	log( "back loco:".. i.."  "..frontLoco[i].name );
+	--end
+	--end
+	--local frontLoco = train.carriages;
+	--if frontLoco then
+	--for i=1, #frontLoco do
+	--	log( "carriage:".. i.."  "..frontLoco[i].name );
+	--end
+	--end
+	--local frontLoco = train.cargo_wagons;
+	--if frontLoco then
+	--for i=1, #frontLoco do
+	--	log( "cargo:".. i.."  "..frontLoco[i].name );
+	--end
+	--end
+	--log( "fs:".. train.front_stock.name );
+	--log( "bs:".. train.back_stock.name );
+
+	--log( "Train Proto:"..tostring( game.entity_prototypes[ loco.name ].weight ).. " Train:"..train.help() );
+
+	-- car only.
+	--log( "Inertial stuff:"..train.locomotives.front_movers[1].effectivity_modifier .. "  consump:"..train.locomotives.front_movers[1].consumption_modifier .."  fict:"..train.locomotives.front_movers[1].friction_modifier );
 
 	for i=1, #global.trains do
 		if global.trains[i] == train then
@@ -217,14 +335,16 @@ script.on_event(defines.events.on_train_created, function(event)
 			return;
 		end
 	end
+	--log( " slots:".. #global.trains );
 	for i=1, #global.trains do
+		--log( " empty slot?"..i );
 		if not global.trains[i] then
-			log( "filling train into missing slot." );
+			--log( "filling train into missing slot." );
 			global.trains[i] = train;
 			return;
 		end
-	end
-	log( "filling train into last slot.".. (#global.trains+1) );
+	end                       	
+	--log( "filling train into last slot.".. (#global.trains+1) );
 	global.trains[#global.trains+1] = train;
 end )
 
@@ -232,11 +352,12 @@ end )
 
 script.on_event(defines.events.on_player_mined_entity, function(event)
 	log( 'player picked up:'.. event.entity.type );
-	if( event.entity.type == "train" ) then
+	if( event.entity.type == "locomotive" ) then
 		local train = event.entity.train;
 		if not train then return end
 		for i=1, #global.trains do
 			if global.trains[i] == train then
+				log( "Found train to remove".. i );
 				global.trains[i] = nil;
 			end
 		end
@@ -245,13 +366,10 @@ script.on_event(defines.events.on_player_mined_entity, function(event)
 	end
 end)
 
-script.on_event(defines.events.on_player_joined_game, function(event)
-     log( "Player Joined?" );
-end)
-
 script.on_event(defines.events.on_pre_surface_deleted, function(event)
      log( "pre surface delete?" );
 end)
+
 script.on_event(defines.events.on_surface_created, function(event)
      log( "surface create?" );
 end)
