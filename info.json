@@ -1,0 +1,12 @@
+{
+  "name": "train-speed-limiter",
+  "version": "0.0.1",
+  "factorio_version": "0.15",
+  "title": "Train Speed Limiter",
+  "author": "d3x0r",
+  "contact": "",
+  "homepage": "github.com/d3x0r/train-speed-limiter",
+  "description": "Caps train speeds based on track type.",
+  "dependencies": ["base >= 0.12.35", "? JunkTrain", "? Bio_Industries", "? BridgeRailway", "? RailPowerSystem" ]
+
+}
