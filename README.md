@@ -13,6 +13,10 @@ Limit trains based on track type they are on.
 
 ### With Mod
 
+Increase max speed from 259.2 to 863
+Increase air resistance from 0.75% to 1.2%
+
+
 On Scrap Rails
 | Wood/Coal | Solid Fuel | Rocket Fuel |
 | 81 | | 150 |
@@ -36,6 +40,9 @@ On Cement Rails (Bio Industries)
 | 31.9 |  | 60.4 |
 
 ### With Mod
+
+Increase max speed from 64.8 to 256.2
+Decrease air resistance from 3% to 1.2%
 
 On Scrap Rails
 | Wood/Coal | Solid Fuel | Rocket Fuel |
@@ -61,6 +68,11 @@ On Cement Rails (Bio Industries)
 
 ### With Mod
 
+Increase power from 600kW to 1500kW
+Increase max speed from 259.2 to 863
+Increase air resitance form 0.75% to 2%
+Increase rail accumulator storage from 11kJ to 25kJ (to support higher power)
+
 On Scrap Rails
 | Electricity |
 | 146 |
@@ -85,6 +97,10 @@ On Cement Rails (Bio Industries)
 
 ### With Mod
 
+Increase power from 1200kW to 1800kW
+Increase max speed from 324 to 863
+Increase air resistance from 0.75% to 1.9%
+
 On Scrap Rails
 | Uranium |
 | 127 |
@@ -101,6 +117,15 @@ On Cement Rails (Bio Industries)
 | Uranium |
 | 360-372 |
 
+
+## Summary of Locomotive Changes
+
+Standard locomotives remain the same.  They have higher speeds in some conditions, but take a long time to get up to speed. 
+Some of the numbers reflect effective max speed and real max speed; depending on the length of rail it may not reach the specified speed.
+
+Hybrid and Nuclear locomotives, increased acceleration, so they get up to higher speeds faster at a slight increase in power requirement.
+
+Junk train locomotive had to have lowered air resistance so it could approach the same speeds on junk rails.
 
 
 
