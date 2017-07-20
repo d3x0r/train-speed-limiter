@@ -280,12 +280,11 @@ function limitTrain( tick, index, train )
 		-- speed = speed * 0.992;
 
 		-- bridge rail penalty
-		speed = speed * 0.9975;
+		-- speed = speed * 0.9975;
 
 		-- cement rail bonus
 		-- speed = speed * 1.0005;
-
-
+		
 		--speed = speed * 0.992;
 			--speed = speed * 1.003;
 		for i=1, #track_types do
@@ -293,6 +292,7 @@ function limitTrain( tick, index, train )
 			if( tt.name == frontRail.name ) then
 				_lastRail.type = tt;
 				--log( "train speed:".. train.speed.. "something:".. track_types[i].max );
+				speed = speed * tt.q;
 				if( speed > tt.max ) then
 					--speed = speed - (( speed-tt.max ) * 0.01 * ticks);
 				end
