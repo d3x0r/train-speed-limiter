@@ -39,11 +39,11 @@
 local kpt = ( 1000/3600 ) /60; -- km per tick
 -- 0.00462962962962962962962962962963
 
-local track_types = {  { name = "curved-scrap-rail", max=(kpt)*80, q = 0.95 }  -- 
-		,  { name = "straight-scrap-rail", max=(kpt)*80, q = 0.95 }
+local track_types = {  { name = "curved-scrap-rail", max=(kpt)*80, q = 0.992 }  -- 
+		,  { name = "straight-scrap-rail", max=(kpt)*80, q = 0.992 }
 
-		,  { name = "curved-cement-rail", max=(kpt)*720, q = 1.0 }  -- hyperloop speed
-		,  { name = "straight-cement-rail", max=(kpt)*720, q = 1.0 }
+		,  { name = "curved-cement-rail", max=(kpt)*720, q = 1.005 }  -- hyperloop speed
+		,  { name = "straight-cement-rail", max=(kpt)*720, q = 1.005 }
 
 		,  { name = "curved-rail-power", max=(kpt)*360, q = 1.0 }
 		,  { name = "straight-rail-power", max=(kpt)*360, q = 1.0 }
@@ -275,9 +275,10 @@ function limitTrain( tick, index, train )
 			--  -- this is a good amount for slow track limiter on trains  
 
 		-- scrap rail penalty
-		--speed = speed * 0.992;
 
-		speed = speed * 1.0005;
+		speed = speed * 0.992;
+
+		--speed = speed * 1.0005;
 
 
 		--speed = speed * 0.992;

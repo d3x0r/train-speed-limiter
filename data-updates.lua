@@ -30,20 +30,24 @@ end
 
 
 -- 259.1 unmodified(wood)(speedcap)   298.1 unmodified (rocket fuel)
+-- 450 rocket fuel(500max)
+
 -- scrap rail 81(wood) - 150.9 rocket
 -- 250.2kmh 1.0 track (wood), full lap  260(solid)   390 rocket fuel
+
+-- 73, 88, 134 (scrap rails)
 --  169, 205, 312 (latest)
 --  184,      340
--- 450 rocket fuel(500max)
 data.raw.locomotive.locomotive.max_speed = 4.0;  -- default 1.2
 data.raw.locomotive.locomotive.air_resistance = 0.012;  -- default 0.0075
 
 if data.raw.locomotive["JunkTrain"] then
    -- 31.9 unmodified(wood)
    -- 60.4 unmodified(rocket fuel) 
+    -- 30.0 scrap rail  57 rocket fuel
   -- 80 & 99.4
 	-- 64kmh 1.0 track
-	data.raw.locomotive.JunkTrain.max_speed = 0.4;  -- default 1.2
+	data.raw.locomotive.JunkTrain.max_speed = 1.0;  -- default 1.2
 	data.raw.locomotive.JunkTrain.air_resistance = 0.012;  -- default 0.03
 
 
@@ -51,13 +55,13 @@ end
 
 if data.raw.locomotive["nuclear-locomotive"] then
       -- 324kmh unmodified.  (speed cap)
-    -- scrap rail - 105
+    -- scrap rail - 127
     -- 1.0 rail - 380-404 (340 1 lap)
        -- 380 1 lap
 	-- 561kmh 1.0 track
-	data.raw.locomotive["nuclear-locomotive"].max_power = "1500kW"; -- 1200kW default
+	data.raw.locomotive["nuclear-locomotive"].max_power = "1800kW"; -- 1200kW default
 	data.raw.locomotive["nuclear-locomotive"].max_speed = 4.0; -- 1.5 default
-	data.raw.locomotive["nuclear-locomotive"].air_resistance = 0.015; -- 0.0075 default
+	data.raw.locomotive["nuclear-locomotive"].air_resistance = 0.018; -- 0.0075 default
 
 	data.raw.locomotive["nuclear-locomotive"].working_light = {
 		color = {
