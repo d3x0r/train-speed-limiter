@@ -37,26 +37,29 @@
 
 
 local kpt = ( 1000/3600 ) /60; -- km per tick
-local track_types = {  { name = "curved-scrap-rail", max=(kpt)*80, q = 0.5 }  -- 
-		,  { name = "straight-scrap-rail", max=(kpt)*80, q = 0.5 }
+-- 0.00462962962962962962962962962963
 
-		,  { name = "curved-cement-rail", max=(kpt)*720, q = 1.6 }  -- hyperloop speed
-		,  { name = "straight-cement-rail", max=(kpt)*720, q = 1.6 }
+local track_types = {  { name = "curved-scrap-rail", max=(kpt)*80, q = 0.95 }  -- 
+		,  { name = "straight-scrap-rail", max=(kpt)*80, q = 0.95 }
 
-		,  { name = "curved-rail-power", max=(kpt)*360, q = 1.2 }
-		,  { name = "straight-rail-power", max=(kpt)*360, q = 1.2 }
+		,  { name = "curved-cement-rail", max=(kpt)*720, q = 1.0 }  -- hyperloop speed
+		,  { name = "straight-cement-rail", max=(kpt)*720, q = 1.0 }
 
-		,  { name = "curved-rail-wood-bridge", max=(kpt)*280, q = 0.9 }
-		,  { name = "straight-rail-wood-bridge", max=(kpt)*280, q = 0.9 }
+		,  { name = "curved-rail-power", max=(kpt)*360, q = 1.0 }
+		,  { name = "straight-rail-power", max=(kpt)*360, q = 1.0 }
 
-		,  { name = "bridge-curved-rail", max=(kpt)*280, q = 0.9 }
-		,  { name = "bridge-straight-rail", max=(kpt)*280, q = 0.9 }
+		,  { name = "curved-rail-wood-bridge", max=(kpt)*280, q = 0.96 }
+		,  { name = "straight-rail-wood-bridge", max=(kpt)*280, q = 0.96 }
 
-		,  { name = "curved-rail", max=(kpt)*360, q = 1 }
-		,  { name = "straight-rail", max=(kpt)*360, q = 1 }
+		,  { name = "bridge-curved-rail", max=(kpt)*280, q = 0.96 }
+		,  { name = "bridge-straight-rail", max=(kpt)*280, q = 0.96 }
+
+		,  { name = "curved-rail", max=(kpt)*360, q = 1.0 }
+		,  { name = "straight-rail", max=(kpt)*360, q = 1.0 }
 		}
 
 local lastRail = {};
+local lastTick = 0;
 
 local function log(string)
 	game.write_file( "train-limiter.log", string.."\n", true, 1 );
@@ -182,6 +185,7 @@ script.on_event(defines.events.on_tick, function(event)
 	--log( "active trains:"..#global.trains);
 	if temp == 0 then 
 		log( "process: ".. #global.trains );
+		--log_keys( data.raw.entity.locomotive )
 		temp = 1;
         end
 	for i=1,#global.trains do
@@ -198,6 +202,12 @@ script.on_event(defines.events.on_tick, function(event)
 end)
 
 function limitTrain( tick, index, train ) 
+	local ticks = 0;
+	if not lastTick then
+		lastTick = tick;
+		return;
+	end
+	ticks = tick - lastTick;
 	local frontRail = train.front_rail;
 	local _lastRail = lastRail[index];
 	local speed = train.speed;
@@ -214,8 +224,8 @@ function limitTrain( tick, index, train )
 		else
 			if _lastRail.type then
 			if( train.speed > _lastRail.type.max ) then
-				train.speed = _lastRail.type.max;
-				return;
+				--train.speed = _lastRail.type.max;
+				--return;
 			end
 			end
 		end
@@ -249,24 +259,42 @@ function limitTrain( tick, index, train )
 
 	if( speed > 0.001 ) then
 		local scalar = 0.1;
-		log( frontLoco.name.."train speed:".. train.speed.."("..(train.speed/kpt)..")"  .. " delta:" .. ((speed-_lastRail.speed)/kpt) .. " fixed accel:"..((speed-_lastRail.speed + (_lastRail.speed*0.0075) )/kpt) );
-		if( speed > _lastRail.speed ) then
-			--speed = speed + ((speed-_lastRail.speed) * 2 );
+		--log( frontLoco.name.."train speed:".. train.speed.."("..(train.speed/kpt)..")"  .. " delta:" .. ((speed-_lastRail.speed)/kpt) .. " fixed accel:"..((speed-_lastRail.speed + (_lastRail.speed*0.0075) )/kpt) );
+		if( speed >= _lastRail.speed ) then
+			--log( frontLoco.name.."train speed bonus:".. ((speed-_lastRail.speed) * 1.0 ) );
+			--speed = speed + ((speed-_lastRail.speed) * 1.5 );
+			--speed = speed * 1.02;
 			--scalar = 0.2;
+			--speed = speed * (1.003  * ticks); -- 1.005 is more than the train can stop
+			
+			--speed = speed * 1.001;
+
 		end
+			--speed = speed * 1.001;
+			--speed = speed * 0.95;
+			--  -- this is a good amount for slow track limiter on trains  
+
+		-- scrap rail penalty
+		--speed = speed * 0.992;
+
+		speed = speed * 1.0005;
+
+
+		--speed = speed * 0.992;
+			--speed = speed * 1.003;
 		for i=1, #track_types do
 			local tt = track_types[i];
 			if( tt.name == frontRail.name ) then
 				_lastRail.type = tt;
 				--log( "train speed:".. train.speed.. "something:".. track_types[i].max );
 				if( speed > tt.max ) then
-					--speed = speed - (( speed-tt.max ) * scalar);
+					--speed = speed - (( speed-tt.max ) * 0.01 * ticks);
 				end
 				break
 			end
 		end
 		_lastRail.speed = speed;
-		--train.speed = speed;
+		train.speed = speed;
 	end
 		
 	--log( 'train: '..train.id..'('..frontLoco.name..') is on:'..frontRail.name );
