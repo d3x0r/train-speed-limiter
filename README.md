@@ -3,7 +3,8 @@
 ![icon](images/thumb.png)
 
 [Mod Download](https://mods.factorio.com/mods/d3x0r/train-speed-limiter) 
-[Forum thread](https://forums.factorio.com) - needs to be updated
+
+[Forum thread](https://forums.factorio.com/viewtopic.php?f=91&t=51104)
 
 
 Limit trains based on track type they are on.  This is the table of modifiers used.
