@@ -1,4 +1,6 @@
 
+--/c game.player.insert{name="solid-fuel", count=100}
+
 --Class 1: 10 mph (16kph) for freight, 15 mph for passenger. Much yard, branch line, short line, and industrial spur trackage falls into category. 
 --Class 2: 25 mph (40kph)  for freight, 30 mph for passenger. Branch lines, secondary main lines, many regional railroads, and some tourist operations frequently fall into this class. Examples are Burlington Northern Santa Fe's branch from Sioux Falls to Madison, S. Dak.; Napa Valley Wine Train's 18-mile ex-SP line between Napa and St. Helena, Calif.; and the entire Strasburg Rail Road, 4 and-a-half miles between Strasburg and Leaman Place, Pa. 
 --Class 3: 40 mph (64kph) for freight, 60 mph for passenger. This commonly includes regional railroads and Class 1 secondary main lines. Examples are BNSF between Spokane and Kettle Falls, Wash.; and Canadian National's Wisconsin Central line between Neenah, Wis., and Sault Ste. Marie, Mich. 
@@ -275,8 +277,10 @@ function limitTrain( tick, index, train )
 			--  -- this is a good amount for slow track limiter on trains  
 
 		-- scrap rail penalty
+		-- speed = speed * 0.992;
 
-		--speed = speed * 0.992;
+		-- bridge rail penalty
+		speed = speed * 0.9975;
 
 		-- cement rail bonus
 		-- speed = speed * 1.0005;

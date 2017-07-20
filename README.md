@@ -1,6 +1,10 @@
 # Train Speed Limter
 
-[Mod Download](https://mods.factorio.com/mods/d3x0r/train-speed-limiter) ![icon](images/thumb.png)
+![icon](images/thumb.png)
+
+[Mod Download](https://mods.factorio.com/mods/d3x0r/train-speed-limiter) 
+[Forum thread](https://forums.factorio.com) - needs to be updated
+
 
 Limit trains based on track type they are on.  This is the table of modifiers used.
 
@@ -9,8 +13,6 @@ Limit trains based on track type they are on.  This is the table of modifiers us
 | Multiplier | 1.0  | 0.9975 | 0.992 | 1.0005 |
 | Percentage | 0%   | -0.25% | -0.8% | +0.05% |
 | Max Speed(unused?)  | 80  | 280  | 360  | 720  |
-
-[Forum thread](https://forums.factorio.com) - needs to be updated
 
 ## Standard Diesel Locomotive Trains
 ### Without modification
