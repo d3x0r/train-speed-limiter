@@ -2,7 +2,13 @@
 
 [Mod Download](https://mods.factorio.com/mods/d3x0r/train-speed-limiter) ![icon](images/thumb.png)
 
-Limit trains based on track type they are on.
+Limit trains based on track type they are on.  This is the table of modifiers used.
+
+|   | Standard Rail | Water Crossing Rail | Scrap Rail | Cement Rail |
+|:---|:---:|:---:|:---:|:---:|
+| Multiplier | 1.0  | 0.9975 | 0.992 | 1.0005 |
+| Percentage | 0%   | -0.25% | -0.8% | +0.05% |
+| Max Speed(unused?)  | 80  | 280  | 360  | 720  |
 
 [Forum thread](https://forums.factorio.com) - needs to be updated
 
@@ -10,37 +16,19 @@ Limit trains based on track type they are on.
 ### Without modification
 | Wood/Coal | Solid Fuel | Rocket Fuel |
 |:------:|:---:|:---:|
-| 259.1 | | 298.1 |
+| 259.1 | 272.2 | 298.1 |
 
 ### With Mod
 
   - Increase max speed from 259.2 to 863
   - Increase air resistance from 0.75% to 1.2%
 
-
-On Scrap Rails
-
-| Wood/Coal | Solid Fuel | Rocket Fuel |
-|:------:|:---:|:---:|
-| 81 | | 150 |
-
-On Water Crossing Rails ( Wood Water Rails in Bio Industries or Bridge Railway rails )
-
-| Wood/Coal | Solid Fuel | Rocket Fuel |
-|:------:|:---:|:---:|
-| <169 | <205 | <302 |
-
-On Regular Rails (Wood rails in Bio Industries)
-
-| Wood/Coal | Solid Fuel | Rocket Fuel |
-|:------:|:---:|:---:|
-| 169 | 205 |  302-312 |
-
-On Cement Rails (Bio Industries)
-
-| Wood/Coal | Solid Fuel | Rocket Fuel |
-|:------:|:---:|:---:|
-| 184 | 220 |  340 |
+| Track Type | Wood/Coal | Solid Fuel | Rocket Fuel |
+|:--------||:------:|:---:|:---:|
+| Scrap | 73 | 88.5 | 134 |
+| Water | 120 | 145.4 | 221.2 |
+| Standard | 169 | 205 |  302-312 |
+| Cement | 184 | 220 |  340 |
 
 ## Junk Train (Junk Train mod)
 ### without Modification
@@ -53,29 +41,12 @@ On Cement Rails (Bio Industries)
   - Increase max speed from 64.8 to 256.2
   - Decrease air resistance from 3% to 1.2%
 
-On Scrap Rails
-
-| Wood/Coal | Solid Fuel | Rocket Fuel |
-|:------:|:---:|:---:|
-| 30.0 | | 57 |
-
-On Water Crossing Rails ( Wood Water Rails in Bio Industries or Bridge Railway rails )
-
-| Wood/Coal | Solid Fuel | Rocket Fuel |
-|:------:|:---:|:---:|
-| ?? | ?? | ?? |
-
-On Regular Rails (Wood rails in Bio Industries)
-
-| Wood/Coal | Solid Fuel | Rocket Fuel |
-|:------:|:---:|:---:|
-| 80 | 120 |  152 |
-
-On Cement Rails (Bio Industries)
-
-| Wood/Coal | Solid Fuel | Rocket Fuel |
-|:------:|:---:|:---:|
-| ?? | ?? | ?? |
+|Track Type| Wood/Coal | Solid Fuel | Rocket Fuel |
+|:----- |:------:|:---:|:---:|
+| Scrap | 30.0 | | 57 |
+| Water | ?? | ?? | ?? |
+| Standard | 80 | 120 |  152 |
+| Cement | ?? | ?? | ?? |
 
 ## Hybrid Train (Rail Power System mod)
 ### without Modification
@@ -90,29 +61,12 @@ On Cement Rails (Bio Industries)
   - Increase air resitance form 0.75% to 2%
   - Increase rail accumulator storage from 11kJ to 25kJ (to support higher power)
 
-On Scrap Rails
-
-| Electricity |
-|:------:|
-| 146 |
-
-On Water Crossing Rails ( Wood Water Rails in Bio Industries or Bridge Railway rails )
-
-| Electricity |
-|:------:|
-| ?? | ?? | ?? |
-
-On Regular Rails (Wood rails in Bio Industries)
-
-| Electricity |
-|:------:|
-| 261 .9 |
-
-On Cement Rails (Bio Industries)
-
-| Electricity |
-|:------:|
-| 275 |
+|Track Type | Electricity |
+|:------|:------:|
+|Scrap    | 146 |
+|Water    | 209 |
+|Standard | 261 .9 |  * only standard rails are modified with electric power
+|Cemeent  | 275 |
 
 ## Nuclear Locomotive (Nuclear Locomotives Mod)
 ### without Modification
@@ -127,29 +81,13 @@ On Cement Rails (Bio Industries)
   - Increase max speed from 324 to 863
   - Increase air resistance from 0.75% to 1.9%
 
-On Scrap Rails
 
-| Uranium |
-|:------:|
-| 127 |
-
-On Water Crossing Rails ( Wood Water Rails in Bio Industries or Bridge Railway rails )
-
-| Uranium |
-|:------:|
-| ?? |
-
-On Regular Rails (Wood rails in Bio Industries)
-
-| Uranium |
-|:------:|
-| 332 |
-
-On Cement Rails (Bio Industries)
-
-| Uranium |
-|:------:|
-| 360-372 |
+| Track Type | Uranium |
+|:------|:------:|
+|Scrap    | 127 |
+|Water    | 218 |
+|Standard | 332 |
+|Cement   | 360-372 |
 
 
 ## Summary of Locomotive Changes
