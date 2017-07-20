@@ -276,9 +276,10 @@ function limitTrain( tick, index, train )
 
 		-- scrap rail penalty
 
-		speed = speed * 0.992;
+		--speed = speed * 0.992;
 
-		--speed = speed * 1.0005;
+		-- cement rail bonus
+		-- speed = speed * 1.0005;
 
 
 		--speed = speed * 0.992;

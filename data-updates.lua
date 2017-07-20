@@ -36,32 +36,46 @@ end
 -- 250.2kmh 1.0 track (wood), full lap  260(solid)   390 rocket fuel
 
 -- 73, 88, 134 (scrap rails)
---  169, 205, 312 (latest)
---  184,      340
+--  169, 205, (302-312) (latest)  (standard rail)
+--  184,      340  (cement rail)
 data.raw.locomotive.locomotive.max_speed = 4.0;  -- default 1.2
 data.raw.locomotive.locomotive.air_resistance = 0.012;  -- default 0.0075
 
 if data.raw.locomotive["JunkTrain"] then
    -- 31.9 unmodified(wood)
    -- 60.4 unmodified(rocket fuel) 
-    -- 30.0 scrap rail  57 rocket fuel
-  -- 80 & 99.4
+   -- 30.0 scrap rail  57 rocket fuel
+   -- 80 & 99.4
 	-- 64kmh 1.0 track
 	data.raw.locomotive.JunkTrain.max_speed = 1.0;  -- default 1.2
 	data.raw.locomotive.JunkTrain.air_resistance = 0.012;  -- default 0.03
+end
 
+if data.raw.locomotive["hybrid-train"] then
+--  umodified 259.2
+--     146
+--     261 .9
+--     275
+
+	data.raw.locomotive["hybrid-train"].max_power = "1500kW";  -- 600kW default
+	--reversing_power_modifier
+	data.raw.locomotive["hybrid-train"].max_speed = 4.0; -- 1.5 default
+	data.raw.locomotive["hybrid-train"].air_resistance = 0.020; -- 0.0075 default
+	data.raw["electric-energy-interface"]["rail-accu"].energy_source.buffer_capacity="25kJ";
 
 end
+
+
 
 if data.raw.locomotive["nuclear-locomotive"] then
       -- 324kmh unmodified.  (speed cap)
     -- scrap rail - 127
-    -- 1.0 rail - 380-404 (340 1 lap)
-       -- 380 1 lap
-	-- 561kmh 1.0 track
+    -- 1.0 rail  332
+    --  cement rail 360-372
+
 	data.raw.locomotive["nuclear-locomotive"].max_power = "1800kW"; -- 1200kW default
 	data.raw.locomotive["nuclear-locomotive"].max_speed = 4.0; -- 1.5 default
-	data.raw.locomotive["nuclear-locomotive"].air_resistance = 0.018; -- 0.0075 default
+	data.raw.locomotive["nuclear-locomotive"].air_resistance = 0.019; -- 0.0075 default
 
 	data.raw.locomotive["nuclear-locomotive"].working_light = {
 		color = {
@@ -77,13 +91,8 @@ if data.raw.locomotive["nuclear-locomotive"] then
 --	}
 end
 
-if data.raw.locomotive["hybrid-train"] then
-	data.raw.locomotive["hybrid-train"].max_power = "1200kW";  -- 600kW default
-	--reversing_power_modifier
-	data.raw.locomotive["hybrid-train"].max_speed = 4.0; -- 1.5 default
-	data.raw.locomotive["hybrid-train"].air_resistance = 0.0150; -- 0.0075 default
 
-end
+--log_keys( data.raw );
 
 
 -- working_visualisations=table: 0x0000000011c3d830
