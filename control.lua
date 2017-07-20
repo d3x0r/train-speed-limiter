@@ -129,7 +129,7 @@ function glob_init()
 			end
 
 
-			log( "Game ProtoTypes:".. name.. " : "..entity.name.." type:"..entity.type );
+			--log( "Game ProtoTypes:".. name.. " : "..entity.name.." type:"..entity.type );
 		end
 	end
 
@@ -137,10 +137,10 @@ function glob_init()
 	log_keys( surfaces );	
     	for name,surface in pairs(surfaces) do
 		local trains = surface.get_trains();		
-		log( "Surface trains:".. tostring(#trains) );
+		--log( "Surface trains:".. tostring(#trains) );
 		for i=1, #trains do
 			local train = trains[i];
-			log( "Surface add train:" .. trains[i].id );
+			--log( "Surface add train:" .. trains[i].id );
 			global.trains[i] = train;
 			log_keys(train.locomotives )
 		end
@@ -150,7 +150,7 @@ end
 
 
 script.on_init(function()
-	log( "ON INIT" );
+	--log( "ON INIT" );
 
     glob_init()
 
@@ -168,7 +168,7 @@ script.on_load(function()
 end)
 
 script.on_configuration_changed( function()
-	log( "CONFIGURATION CHANGED" );
+	--log( "CONFIGURATION CHANGED" );
 end)
 
 
@@ -195,7 +195,7 @@ script.on_event(defines.events.on_tick, function(event)
 			if( global.trains[i].valid ) then
 				limitTrain( event.tick, i, global.trains[i] );		
 			else 
-				log( "skipping train (internal index):".. i );
+				--log( "skipping train (internal index):".. i );
 				global.trains[i] = nil;
 			end
 		end
@@ -242,7 +242,7 @@ function limitTrain( tick, index, train )
 		frontLoco = train.locomotives.back_movers[1];
 	end
 	if not frontLoco then
-		log( "no movers on this train..." );
+		--log( "no movers on this train..." );
 		return
 	end
 	--local currentFuel = frontLoco.get_burnt_result_inventory();
@@ -250,7 +250,7 @@ function limitTrain( tick, index, train )
 	if burner then 
 		local currentFuel = burner.currently_burning;
 		if currentFuel then 
-			log( "burning:".. currentFuel.name.. " amount:".. burner.remaining_burning_fuel  );
+			--log( "burning:".. currentFuel.name.. " amount:".. burner.remaining_burning_fuel  );
 		else
 			--log( "no current fuel." );
 		end
@@ -365,7 +365,7 @@ script.on_event(defines.events.on_train_created, function(event)
 
 	for i=1, #global.trains do
 		if global.trains[i] == train then
-			log( "train already tracked in global:"..train.id);
+			--log( "train already tracked in global:"..train.id);
 			return;
 		end
 	end
@@ -385,27 +385,27 @@ end )
 
 
 script.on_event(defines.events.on_player_mined_entity, function(event)
-	log( 'player picked up:'.. event.entity.type );
+	--log( 'player picked up:'.. event.entity.type );
 	if( event.entity.type == "locomotive" ) then
 		local train = event.entity.train;
 		if not train then return end
 		for i=1, #global.trains do
 			if global.trains[i] == train then
-				log( "Found train to remove".. i );
+				--log( "Found train to remove".. i );
 				global.trains[i] = nil;
 			end
 		end
 	
-		log( "Destroyed train?" );
+		--log( "Destroyed train?" );
 	end
 end)
 
 script.on_event(defines.events.on_pre_surface_deleted, function(event)
-     log( "pre surface delete?" );
+     --log( "pre surface delete?" );
 end)
 
 script.on_event(defines.events.on_surface_created, function(event)
-     log( "surface create?" );
+     --log( "surface create?" );
 end)
 
 -- Init existing trains
