@@ -27,7 +27,7 @@ Limit trains based on track type they are on.  This is the table of modifiers us
   - Increase air resistance from 0.75% to 1.2%
 
 | Track Type | Wood/Coal | Solid Fuel | Rocket Fuel |
-|:--------||:------:|:---:|:---:|
+|:--------|:------:|:---:|:---:|
 | Scrap | 73 | 88.5 | 134 |
 | Water | 120 | 145.4 | 221.2 |
 | Standard | 169 | 205 |  302-312 |
