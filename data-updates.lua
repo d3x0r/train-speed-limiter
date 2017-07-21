@@ -37,7 +37,7 @@ end
 
 -- 73, 88, 134 (scrap rails)
 --  169, 205, (302-312) (latest)  (standard rail)
---  184,      340  (cement rail)
+--  184,      340  (concrete rail)
 data.raw.locomotive.locomotive.max_speed = 4.0;  -- default 1.2
 data.raw.locomotive.locomotive.air_resistance = 0.012;  -- default 0.0075
 
@@ -71,7 +71,7 @@ if data.raw.locomotive["nuclear-locomotive"] then
       -- 324kmh unmodified.  (speed cap)
     -- scrap rail - 127
     -- 1.0 rail  332
-    --  cement rail 360-372
+    --  concrete rail 360-372
 
 	data.raw.locomotive["nuclear-locomotive"].max_power = "1800kW"; -- 1200kW default
 	data.raw.locomotive["nuclear-locomotive"].max_speed = 4.0; -- 1.5 default
@@ -104,7 +104,7 @@ end
 --       shift=table: 0x0000000011c3d950
 --         1=0
 --         2=0
---       color=table: 0x0000000011c3d9b0
+--       color=table: 0x0000000011c3d9b0                       `
 --         r=0
 --         g=1
 --         b=0
@@ -121,3 +121,96 @@ end
 --    b=0
 
 --data.raw.locomotive.air_resistance.max_speed = 4.0;
+
+
+-- if Rail Power System is installed; update icons.
+--  if Bio Industries is also installed, add concrete and bridge rail types
+
+if data.raw["straight-rail"]["straight-rail-power"] then
+
+	data.raw["straight-rail"][straightRailPower].icon = "__train-speed-limiter__/graphics/icons/rail-wood-power.png"
+	data.raw["rail-planner"][powerRail].icon = "__train-speed-limiter__/graphics/icons/rail-wood-power.png"
+
+
+	if data.raw["straight-rail"]['bi-straight-rail-wood'] then
+
+	-- if bio industries is included, also extend power rails for matching types
+		createData("straight-rail","straight-rail-power","straight-rail-bridge-power",
+                {		
+			icon = "__train-speed-limiter__/graphics/icons/rail-wood-bridge-power.png",
+			minable = {mining_time = 0.6, result = "powered-rail-bridge"},
+                	pictures=rail_pictures_w(),
+			corpse = "straight-rail-remnants",
+		})	
+                
+		createData("curved-rail","curved-rail-power","curved-rail-bridge-power",
+		{		
+                	icon = "__base__/graphics/icons/curved-rail.png",
+			minable = {mining_time = 0.6, result = "powered-rail-bridge", count=4},
+			placeable_by = { item="powered-rail-bridge", count = 4},
+                	pictures=rail_pictures_w(),
+			corpse = "curved-rail-remnants",
+		})
+                
+		
+		createData("straight-rail","straight-rail-power","straight-rail-concrete-power",
+                {		
+			icon = "__train-speed-limiter__/graphics/icons/rail-concrete-power.png",
+			minable = {mining_time = 0.6, result = "powered-rail-concrete"},
+                	pictures=rail_pictures_c(),
+			corpse = "straight-rail-remnants",
+		})	
+                
+		createData("curved-rail","curved-rail-power","curved-rail-concrete-power",
+		{		
+                	icon = "__base__/graphics/icons/curved-rail.png",
+			minable = {mining_time = 0.6, result = "powered-rail-concrete", count=4},
+			placeable_by = { item="powered-rail-concrete", count = 4},
+                	pictures=rail_pictures_c(),
+			corpse = "curved-rail-remnants",
+		})
+                
+		createData("rail-planner","rail","powered-rail-bridge",
+		{ 
+                	flags = {"goes-to-quickbar"},
+			subgroup = "transport",
+			icon = "__train-speed-limiter__/graphics/icons/rail-wood-bridge-power.png",
+                	place_result = "straight-rail-bridge-power",
+			straight_rail = "straight-rail-bridge-power",
+			curved_rail = "curved-rail-bridge-power"
+                })
+		
+		createData("rail-planner","rail","powered-rail-concrete",
+                { 
+			flags = {"goes-to-quickbar"},
+			subgroup = "transport",
+                	icon = "__train-speed-limiter__/graphics/icons/rail-concrete-power.png",
+			place_result = "straight-rail-concrete-power",
+			straight_rail = "straight-rail-concrete-power",
+                	curved_rail = "curved-rail-concrete-power"
+		})
+
+		createData("recipe","powered-rail","powered-rail-bridge",
+                { 
+		        ingredients = { { "copper-cable", 3 }, { "bi-rail-wood-bridge", 1 } },
+		        result = "powered-rail-bridge",
+		        result_count = 1,
+		})
+
+
+		createData("recipe","powered-rail","powered-rail-concrete",
+                { 
+		        ingredients = { { "copper-cable", 3 }, { "rail", 1 } },
+		        result = "powered-rail-concrete",
+		        result_count = 1,
+		})
+
+		data.raw.recipe["powered-rail"].ingredients = { { "copper-cable", 3 }, { "bi-rail-wood", 1 } }
+		thxbob.lib.tech.add_recipe_unlock( "rail-power-system", "powered-rail-concrete" );
+		thxbob.lib.tech.add_recipe_unlock( "rail-power-system", "powered-rail-bridge" );
+
+	end
+
+else
+	log( "did not find:straight-rail-power" )
+end

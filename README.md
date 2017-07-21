@@ -9,7 +9,7 @@
 
 Limit trains based on track type they are on.  This is the table of modifiers used.
 
-|   | Standard Rail | Water Crossing Rail | Scrap Rail | Cement Rail |
+|   | Standard Rail | Water Crossing Rail | Scrap Rail | Concrete Rail |
 |:---|:---:|:---:|:---:|:---:|
 | Multiplier | 1.0  | 0.9975 | 0.992 | 1.0005 |
 | Percentage | 0%   | -0.25% | -0.8% | +0.05% |
@@ -31,7 +31,7 @@ Limit trains based on track type they are on.  This is the table of modifiers us
 | Scrap | 73 | 88.5 | 134 |
 | Water | 120 | 145.4 | 221.2 |
 | Standard | 169 | 205 |  302-312 |
-| Cement | 184 | 220 |  340 |
+| Concrete | 184 | 220 |  340 |
 
 ## Junk Train (Junk Train mod)
 ### without Modification
@@ -49,7 +49,7 @@ Limit trains based on track type they are on.  This is the table of modifiers us
 | Scrap | 30.0 | | 57 |
 | Water | ?? | ?? | ?? |
 | Standard | 80 | 120 |  152 |
-| Cement | ?? | ?? | ?? |
+| Concrete | ?? | ?? | ?? |
 
 ## Hybrid Train (Rail Power System mod)
 ### without Modification
@@ -58,7 +58,8 @@ Limit trains based on track type they are on.  This is the table of modifiers us
 | 259.2 |
 
 ### With Mod
-
+  - Add powered wood bridge rails (if also have Bio Industries for graphics)
+  - Add powered concrete rails (if also have Bio Industries for graphics) 
   - Increase power from 600kW to 1500kW
   - Increase max speed from 259.2 to 863
   - Increase air resitance form 0.75% to 2%
@@ -90,7 +91,7 @@ Limit trains based on track type they are on.  This is the table of modifiers us
 |Scrap    | 127 |
 |Water    | 218 |
 |Standard | 332 |
-|Cement   | 360-372 |
+|Concrete   | 360-372 |
 
 
 ## Summary of Locomotive Changes

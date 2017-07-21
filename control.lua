@@ -1,4 +1,7 @@
 
+require( "controls.rail" )
+require( "libs.railPowerLib" )
+
 --/c game.player.insert{name="solid-fuel", count=100}
 
 --Class 1: 10 mph (16kph) for freight, 15 mph for passenger. Much yard, branch line, short line, and industrial spur trackage falls into category. 
@@ -41,31 +44,34 @@
 local kpt = ( 1000/3600 ) /60; -- km per tick
 -- 0.00462962962962962962962962962963
 
-local track_types = {  { name = "curved-scrap-rail", max=(kpt)*80, q = 0.992 }  -- 
-		,  { name = "straight-scrap-rail", max=(kpt)*80, q = 0.992 }
+local concreteBonus = 1.003;
+local standardBonus = 1.0;
+local scrapPenalty = 0.992;
+local waterPenalty = 0.9975;
 
-		,  { name = "curved-cement-rail", max=(kpt)*720, q = 1.005 }  -- hyperloop speed
-		,  { name = "straight-cement-rail", max=(kpt)*720, q = 1.005 }
+local track_types = {}
 
-		,  { name = "curved-rail-power", max=(kpt)*360, q = 1.0 }
-		,  { name = "straight-rail-power", max=(kpt)*360, q = 1.0 }
+local oldTrackTypes= { { name = "curved-scrap-rail", max=(kpt)*80, q = scrapPenalty }  -- 
+		,  { name = "straight-scrap-rail", max=(kpt)*80, q = scrapPenalty }
 
-		,  { name = "curved-rail-wood-bridge", max=(kpt)*280, q = 0.96 }
-		,  { name = "straight-rail-wood-bridge", max=(kpt)*280, q = 0.96 }
+		,  { name = "curved-concrete-rail", max=(kpt)*720, q = concreteBonus }  -- hyperloop speed
+		,  { name = "straight-concrete-rail", max=(kpt)*720, q = concreteBonus }
 
-		,  { name = "bridge-curved-rail", max=(kpt)*280, q = 0.96 }
-		,  { name = "bridge-straight-rail", max=(kpt)*280, q = 0.96 }
+		,  { name = "curved-rail-power", max=(kpt)*360, q = standardBonus }
+		,  { name = "straight-rail-power", max=(kpt)*360, q = standardBonus }
 
-		,  { name = "curved-rail", max=(kpt)*360, q = 1.0 }
-		,  { name = "straight-rail", max=(kpt)*360, q = 1.0 }
+		,  { name = "curved-rail-wood-bridge", max=(kpt)*280, q = waterPenalty }
+		,  { name = "straight-rail-wood-bridge", max=(kpt)*280, q = waterPenalty }
+
+		,  { name = "bridge-curved-rail", max=(kpt)*280, q = waterPenalty }
+		,  { name = "bridge-straight-rail", max=(kpt)*280, q = waterPenalty }
+
+		,  { name = "curved-rail", max=(kpt)*360, q = standardBonus }  -- may also be concreteBonus
+		,  { name = "straight-rail", max=(kpt)*360, q = standardBonus }-- may also be concreteBonus
 		}
 
 local lastRail = {};
 local lastTick = 0;
-
-local function log(string)
-	game.write_file( "train-limiter.log", string.."\n", true, 1 );
-end
 
 local function _log_keys(prefix,object)
     for _, __ in pairs(object) do
@@ -107,31 +113,126 @@ local function _log_keys(prefix,object)
 
 end
 
-function glob_init()
-    global.trains = {}
-	local index = 1; -- for adding available rail types
-	for name,entity in pairs(game.entity_prototypes) do
-		if entity.type == "straight_rail" then
+
+function setupTypes() 
+log( "Have some types:"..#global.track_types )
+	if global.track_types then
+		for name,type in pairs(global.track_types) do
 			-- BridgeRailway
-			if entity.name == "bridge-straight-rail" then
+			log( "track type:".. type );
+			if type == "bridge" then
+				track_types[#track_types+1] = { name = "bridge-curved-rail", max=(kpt)*280, q = waterPenalty }
+				track_types[#track_types+1] = { name = "bridge-straight-rail", max=(kpt)*280, q = waterPenalty }
 			end
 			-- JunkTrain
-			if entity.name == "straight-scrap-rail" then
+			if type == "scrap" then
+				track_types[#track_types+1] = { name = "curved-scrap-rail", max=(kpt)*80, q = scrapPenalty } 
+				track_types[#track_types+1] = { name = "straight-scrap-rail", max=(kpt)*80, q = scrapPenalty }
 			end
 			-- bio industries woor bridge
-			if entity.name == "bi-straight-rail-wood-bridge" then
+			if type == "bi-bridge" then
+				track_types[#track_types+1] = { name = "curved-rail-wood-bridge", max=(kpt)*280, q = waterPenalty }
+				track_types[#track_types+1] = { name = "straight-rail-wood-bridge", max=(kpt)*280, q = waterPenalty }
+
+			end
+
+			if type == "bi-wood" then
+				local found_standard = false;
+				for i=1, #track_types do
+					if( track_types[i].name == "straight-rail" ) then
+						found_standard = true;
+						track_types[i].q = concreteBonus;
+					end
+					if( track_types[i].name == "curved-rail" ) then
+						found_standard = true;
+						track_types[i].q = concreteBonus;
+					end
+				end
+				if( not found_standard ) then
+					track_types[#track_types+1] = { name = "straight-rail", max=(kpt)*360, q = concreteBonus };
+					track_types[#track_types+1] = { name = "curved-rail", max=(kpt)*360, q = concreteBonus };
+				end
+
+				track_types[#track_types+1] = { name = "bi-curved-rail-wood", max=(kpt)*280, q = standardBonus }
+				track_types[#track_types+1] = { name = "bi-straight-rail-wood", max=(kpt)*280, q = standardBonus }
 			end
 			-- RailPowerSystem
-			if entity.name == "straight-rail-power" then
+			if type == "straight-rail-power" then
+				track_types[#track_types+1] = { name = "curved-rail-power", max=(kpt)*360, q = standardBonus };
+				track_types[#track_types+1] = { name = "straight-rail-power", max=(kpt)*360, q = standardBonus };
+			end
+			if type == "power-bridge" then
+				track_types[#track_types+1] = { name = "curved-rail-power-bridge-power", max=(kpt)*360, q = waterPenalty };
+				track_types[#track_types+1] = { name = "straight-rail-power-bridge-power", max=(kpt)*360, q = waterPenalty };
+			end
+			if type == "power-concrete" then
+				track_types[#track_types+1] = { name = "curved-rail-power-concrete-power", max=(kpt)*360, q = concreteBonus };
+				track_types[#track_types+1] = { name = "straight-rail-power-concrete-power", max=(kpt)*360, q = concreteBonus };
 			end
 
-			if entity.name == "straight-rail" then
+			if type == "standard" then
+				track_types[#track_types+1] = { name = "curved-rail-power", max=(kpt)*360, q = standardBonus };
+				track_types[#track_types+1] = { name = "straight-rail-power", max=(kpt)*360, q = standardBonus };
 			end
 
 
-			--log( "Game ProtoTypes:".. name.. " : "..entity.name.." type:"..entity.type );
+			--log( "Game ProtoTypes:".. name.. " : "..entity.name.." type:"..type );
 		end
 	end
+end
+
+
+function glob_init()
+	
+	global.trains = {}
+	global.track_types = {};
+	local index = 1; -- for adding available rail types
+	for name,entity in pairs(game.entity_prototypes) do
+		--log( "check entity:"..entity.type.." : "..entity.name );
+		if entity.type == "straight-rail" then
+
+			-- BridgeRailway
+			if entity.name == "bridge-straight-rail" then
+				--log( "add type bridge".. #global.track_types );
+				global.track_types[#global.track_types+1] = "bridge";
+
+			-- JunkTrain
+			elseif entity.name == "straight-scrap-rail" then
+				--log( "add type scrap".. #global.track_types );
+				global.track_types[#global.track_types+1] = "scrap";
+
+			-- bio industries wood bridge
+			elseif entity.name == "bi-straight-rail-wood-bridge" then
+				--log( "add type bi-bridge".. #global.track_types );
+				global.track_types[#global.track_types+1] = "bi-bridge";
+
+			-- bio industries wood
+			elseif entity.name == "bi-straight-rail-wood" then
+				--log( "add type bi-wood" );
+				global.track_types[#global.track_types+1] = "bi-wood";
+			-- RailPowerSystem
+			elseif entity.name == "straight-rail-power" then
+				--log( "add type power" );
+				global.track_types[#global.track_types+1] = "power";
+
+			elseif entity.name == "straight-rail-power-bridge-power" then
+				--log( "add type power-bridge" );
+				global.track_types[#global.track_types+1] = "power-bridge";
+
+			elseif entity.name == "straight-rail-power-concrete-power" then
+				--log( "add type power-concrete" );
+				global.track_types[#global.track_types+1] = "power-concrete";
+
+			-- base game
+			elseif entity.name == "straight-rail" then
+				--log( "add type standard" );
+				global.track_types[#global.track_types+1] = "standard";
+			end
+
+		end
+	end
+
+	setupTypes();
 
 	local surfaces = game.surfaces;--players[event.player_index]
 	log_keys( surfaces );	
@@ -148,54 +249,88 @@ function glob_init()
 	end
 end
 
+function setupEvents()
+
+---------------------------------------------------
+-- build and unbuild
+---------------------------------------------------
+        if game.entity_prototypes["hybrid-train"] and game.entity_prototypes["bi-straight-rail-wood"] then
+		function OnBuildEntity(entity)
+		-- remove automatic connected cables
+			onGlobalBuilt(entity)
+
+			if entities[entity.name] and entities[entity.name].onBuilt then
+				entities[entity.name].onBuilt(entity)
+			end	
+		end
+
+		function OnPreRemoveEntity(entity)
+			if entities[entity.name] and entities[entity.name].onRemove then
+				entities[entity.name].onRemove(entity)
+			end	
+		end
+
+
+		script.on_event(defines.events.on_robot_built_entity, function(event)
+			OnBuildEntity(event.created_entity)
+		end)
+
+		script.on_event(defines.events.on_built_entity, function(event)
+			OnBuildEntity(event.created_entity)
+		end)
+
+		--premined
+		script.on_event(defines.events.on_robot_pre_mined, function(event)
+			OnPreRemoveEntity(event.entity)
+		end)
+
+		script.on_event(defines.events.on_preplayer_mined_item, function(event)
+			OnPreRemoveEntity(event.entity)
+		end)
+	end
+end
 
 script.on_init(function()
-	--log( "ON INIT" );
-
-    glob_init()
-
-    --for _, player in pairs(game.players) do
-    --    gui_init(player, false)
-    --end
-
-
+	log( "ON INIT" );
+	glob_init()
 end)
 
 script.on_load(function()
         -- game is not available.
         -- called when save is reloaded.
-	 -- log( "ON LOAD" );
+	log( "ON LOAD" );
+	if game then log( "HAVE GAME" ) else log( "NO GAME" ) end
+	setupTypes();
 end)
 
 script.on_configuration_changed( function()
-	--log( "CONFIGURATION CHANGED" );
+	log( "CONFIGURATION CHANGED" );
+	glob_init()
 end)
 
 
----------------------------------------------------
---On research finished
----------------------------------------------------
-script.on_event(defines.events.on_research_finished, function(event)
-	--if event.research.name==trainWhistleTech then
-		global.trains={}
-	--end
-end)
 
-local temp = 0;
+
+---------------------------------------------------
+-- TICK
+---------------------------------------------------
+
+local temp = false;
 script.on_event(defines.events.on_tick, function(event)
 	--if event.research.name==trainWhistleTech then
 	--log( "active trains:"..#global.trains);
-	if temp == 0 then 
+	if not temp then 
 		log( "process: ".. #global.trains );
 		--log_keys( data.raw.entity.locomotive )
-		temp = 1;
+		setupEvents();
+		temp = true;
         end
 	for i=1,#global.trains do
 		if global.trains[i] then
 			if( global.trains[i].valid ) then
 				limitTrain( event.tick, i, global.trains[i] );		
 			else 
-				--log( "skipping train (internal index):".. i );
+				log( "skipping train (internal index):".. i );
 				global.trains[i] = nil;
 			end
 		end
@@ -220,15 +355,17 @@ function limitTrain( tick, index, train )
 			--if( index == 1 ) then 
 			--	log( "tickdel train 1="..(tick-lastRail[index].tick));
 			--end
-			_lastRail.tick = tick;
+			--_lastRail.tick = tick;
 			_lastRail.rail = frontRail;
 		 	-- new rail type - need to go down and find the track.
 		else
 			if _lastRail.type then
-			if( train.speed > _lastRail.type.max ) then
-				--train.speed = _lastRail.type.max;
-				--return;
-			end
+				if( train.speed > _lastRail.type.max ) then
+					--_lastRail.speed = speed;
+					train.speed = speed * tt.q;
+					--train.speed = _lastRail.type.max;
+					return;
+				end
 			end
 		end
 	else 
@@ -237,32 +374,32 @@ function limitTrain( tick, index, train )
 	end
 			
 
-	local frontLoco = train.locomotives.front_movers[1];
-	if not frontLoco then
-		frontLoco = train.locomotives.back_movers[1];
-	end
-	if not frontLoco then
+--	local frontLoco = train.locomotives.front_movers[1];
+--	if not frontLoco then
+--		frontLoco = train.locomotives.back_movers[1];
+--	end
+--	if not frontLoco then
 		--log( "no movers on this train..." );
-		return
-	end
+--		return
+--	end
 	--local currentFuel = frontLoco.get_burnt_result_inventory();
-	local burner = frontLoco.burner;
-	if burner then 
-		local currentFuel = burner.currently_burning;
-		if currentFuel then 
+--	local burner = frontLoco.burner;
+--	if burner then 
+--		local currentFuel = burner.currently_burning;
+--		if currentFuel then 
 			--log( "burning:".. currentFuel.name.. " amount:".. burner.remaining_burning_fuel  );
-		else
+--		else
 			--log( "no current fuel." );
-		end
-	end
+--		end
+--	end
 	
 	-- vehicle does not mean train... must be car or player
 	--if( index == 2 ) then log( "riding  State:".. tostring(frontLoco.riding_state )); end
 
 	if( speed > 0.001 ) then
-		local scalar = 0.1;
+		--local scalar = 0.1;
 		--log( frontLoco.name.."train speed:".. train.speed.."("..(train.speed/kpt)..")"  .. " delta:" .. ((speed-_lastRail.speed)/kpt) .. " fixed accel:"..((speed-_lastRail.speed + (_lastRail.speed*0.0075) )/kpt) );
-		if( speed >= _lastRail.speed ) then
+		--if( speed >= _lastRail.speed ) then
 			--log( frontLoco.name.."train speed bonus:".. ((speed-_lastRail.speed) * 1.0 ) );
 			--speed = speed + ((speed-_lastRail.speed) * 1.5 );
 			--speed = speed * 1.02;
@@ -271,7 +408,7 @@ function limitTrain( tick, index, train )
 			
 			--speed = speed * 1.001;
 
-		end
+		--end
 			--speed = speed * 1.001;
 			--speed = speed * 0.95;
 			--  -- this is a good amount for slow track limiter on trains  
@@ -282,24 +419,25 @@ function limitTrain( tick, index, train )
 		-- bridge rail penalty
 		-- speed = speed * 0.9975;
 
-		-- cement rail bonus
+		-- concrete rail bonus
 		-- speed = speed * 1.0005;
 		
 		--speed = speed * 0.992;
-			--speed = speed * 1.003;
+		--speed = speed * 1.003;
 		for i=1, #track_types do
 			local tt = track_types[i];
+			--log( "track type check:"..tt.name..  " == "..frontRail.name );
 			if( tt.name == frontRail.name ) then
 				_lastRail.type = tt;
-				--log( "train speed:".. train.speed.. "something:".. track_types[i].max );
+				--log( "train speed:".. train.speed.. "something:".. tt.max.. " Q:"..tt.q );
 				speed = speed * tt.q;
-				if( speed > tt.max ) then
+				--if( speed > tt.max ) then
 					--speed = speed - (( speed-tt.max ) * 0.01 * ticks);
-				end
+				--end
 				break
 			end
 		end
-		_lastRail.speed = speed;
+		--_lastRail.speed = speed;
 		train.speed = speed;
 	end
 		
