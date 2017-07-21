@@ -326,6 +326,7 @@ function limitTrain( tick, index, train )
 		return;
 	end
 	ticks = tick - lastTick;
+	lastTick = tick;
 	local frontRail = train.front_rail;
 	local _lastRail = lastRail[index];
 	local speed = train.speed;
