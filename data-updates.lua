@@ -141,6 +141,7 @@ if data.raw["straight-rail"]["straight-rail-power"] then
 			minable = {mining_time = 0.6, result = "powered-rail-bridge"},
                 	pictures=rail_pictures_w(),
 			corpse = "straight-rail-remnants",
+			collision_mask = { "object-layer", "not-colliding-with-itself" }
 		})	
                 
 		createData("curved-rail","curved-rail-power","curved-rail-bridge-power",
@@ -150,6 +151,7 @@ if data.raw["straight-rail"]["straight-rail-power"] then
 			placeable_by = { item="powered-rail-bridge", count = 4},
                 	pictures=rail_pictures_w(),
 			corpse = "curved-rail-remnants",
+			collision_mask = { "object-layer", "not-colliding-with-itself" }
 		})
                 
 		
@@ -178,7 +180,6 @@ if data.raw["straight-rail"]["straight-rail-power"] then
                 	place_result = "straight-rail-bridge-power",
 			straight_rail = "straight-rail-bridge-power",
 			curved_rail = "curved-rail-bridge-power",
-			collision_mask = { "object-layer", "not-colliding-with-itself" }
                 })
 		
 		createData("rail-planner","rail","powered-rail-concrete",
@@ -189,7 +190,6 @@ if data.raw["straight-rail"]["straight-rail-power"] then
 			place_result = "straight-rail-concrete-power",
 			straight_rail = "straight-rail-concrete-power",
                 	curved_rail = "curved-rail-concrete-power",
-			collision_mask = { "object-layer", "not-colliding-with-itself" }
 		})
 
 		createData("recipe","powered-rail","powered-rail-bridge",

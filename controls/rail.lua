@@ -111,7 +111,7 @@ railPower.onBuilt=function(entity)
 	for i,node in pairs(nodesPositions(entity)) do
 		ghostEntities[i]=addGhostEntity(entity,node,ghostElectricPoleNotSelectable,false)		
 	end	
-	
+
 	local ghostAccu=addGhostEntity(entity,entity.position,railAccu,false)
 
 	connectGhostsInsideRail(entity)

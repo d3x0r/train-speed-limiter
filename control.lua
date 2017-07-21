@@ -196,11 +196,11 @@ function glob_init()
 				--log( "add type power" );
 				global.track_types[#global.track_types+1] = "power";
 
-			elseif entity.name == "straight-rail-power-bridge-power" then
+			elseif entity.name == "straight-rail-bridge-power" then
 				--log( "add type power-bridge" );
 				global.track_types[#global.track_types+1] = "power-bridge";
 
-			elseif entity.name == "straight-rail-power-concrete-power" then
+			elseif entity.name == "straight-rail-concrete-power" then
 				--log( "add type power-concrete" );
 				global.track_types[#global.track_types+1] = "power-concrete";
 
@@ -300,6 +300,13 @@ local temp = false;
 script.on_event(defines.events.on_tick, function(event)
 	--if event.research.name==trainWhistleTech then
 	--log( "active trains:"..#global.trains);
+	local ticks = 0;
+	if lastTick == 0 then
+		lastTick = event.tick;
+		return;
+	end
+	ticks = event.tick - lastTick;
+	lastTick = event.tick;
 	if not temp then 
 		log( "process: ".. #global.trains );
 		--log_keys( data.raw.entity.locomotive )
@@ -309,9 +316,9 @@ script.on_event(defines.events.on_tick, function(event)
 	for i=1,#global.trains do
 		if global.trains[i] then
 			if( global.trains[i].valid ) then
-				limitTrain( event.tick, i, global.trains[i] );		
+				limitTrain( ticks, i, global.trains[i] );		
 			else 
-				log( "skipping train (internal index):".. i );
+				--log( "skipping train (internal index):".. i );
 				global.trains[i] = nil;
 			end
 		end
@@ -319,39 +326,31 @@ script.on_event(defines.events.on_tick, function(event)
 	--end
 end)
 
-function limitTrain( tick, index, train ) 
-	local ticks = 0;
-	if not lastTick then
-		lastTick = tick;
-		return;
-	end
-	ticks = tick - lastTick;
-	lastTick = tick;
+function limitTrain( ticks, index, train ) 
 	local frontRail = train.front_rail;
 	local _lastRail = lastRail[index];
 	local speed = train.speed;
 	
-
 	if( _lastRail ) then
 		if( _lastRail.rail ~= frontRail ) then
 			--if( index == 1 ) then 
-			--	log( "tickdel train 1="..(tick-lastRail[index].tick));
+			--	log( "tickdel train 1="..(ticks));
 			--end
-			--_lastRail.tick = tick;
 			_lastRail.rail = frontRail;
 		 	-- new rail type - need to go down and find the track.
 		else
 			if _lastRail.type then
+				speed = speed * (_lastRail.type.q*ticks);
 				if( train.speed > _lastRail.type.max ) then
 					--_lastRail.speed = speed;
-					train.speed = _lastRail.type.max;
+					train.speed = (( speed-_lastRail.type.max ) * 0.03 * ticks);
 					--train.speed = _lastRail.type.max;
 					return;
 				end
 			end
 		end
 	else 
-		lastRail[index] = { rail=frontRail, tick=tick, type = nil, speed = speed }
+		lastRail[index] = { rail=frontRail, type = nil, speed = speed }
 		_lastRail = lastRail[index];
 	end
 			
@@ -412,7 +411,7 @@ function limitTrain( tick, index, train )
 			if( tt.name == frontRail.name ) then
 				_lastRail.type = tt;
 				--log( "train speed:".. train.speed.. "something:".. tt.max.. " Q:"..tt.q );
-				speed = speed * tt.q;
+				speed = speed * (tt.q*ticks);
 				if( speed > tt.max ) then
 					speed = speed - (( speed-tt.max ) * 0.03 * ticks);
 				end
@@ -420,6 +419,7 @@ function limitTrain( tick, index, train )
 			end
 		end
 		--_lastRail.speed = speed;
+		--log( "set train speed" .. train.id .. " to "..speed.. "ticks:" ..ticks );
 		train.speed = speed;
 	end
 		
