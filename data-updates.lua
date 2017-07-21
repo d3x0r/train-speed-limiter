@@ -47,8 +47,8 @@ if data.raw.locomotive["JunkTrain"] then
    -- 30.0 scrap rail  57 rocket fuel
    -- 80 & 99.4
 	-- 64kmh 1.0 track
-	data.raw.locomotive.JunkTrain.max_speed = 1.0;  -- default 1.2
-	data.raw.locomotive.JunkTrain.air_resistance = 0.012;  -- default 0.03
+	data.raw.locomotive.JunkTrain.max_speed = 1.0;  -- default 0.3
+	data.raw.locomotive.JunkTrain.air_resistance = 0.009;  -- default 0.03
 end
 
 if data.raw.locomotive["hybrid-train"] then
@@ -177,7 +177,8 @@ if data.raw["straight-rail"]["straight-rail-power"] then
 			icon = "__train-speed-limiter__/graphics/icons/rail-wood-bridge-power.png",
                 	place_result = "straight-rail-bridge-power",
 			straight_rail = "straight-rail-bridge-power",
-			curved_rail = "curved-rail-bridge-power"
+			curved_rail = "curved-rail-bridge-power",
+			collision_mask = { "object-layer", "not-colliding-with-itself" }
                 })
 		
 		createData("rail-planner","rail","powered-rail-concrete",
@@ -187,7 +188,8 @@ if data.raw["straight-rail"]["straight-rail-power"] then
                 	icon = "__train-speed-limiter__/graphics/icons/rail-concrete-power.png",
 			place_result = "straight-rail-concrete-power",
 			straight_rail = "straight-rail-concrete-power",
-                	curved_rail = "curved-rail-concrete-power"
+                	curved_rail = "curved-rail-concrete-power",
+			collision_mask = { "object-layer", "not-colliding-with-itself" }
 		})
 
 		createData("recipe","powered-rail","powered-rail-bridge",

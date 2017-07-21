@@ -44,31 +44,12 @@ require( "libs.railPowerLib" )
 local kpt = ( 1000/3600 ) /60; -- km per tick
 -- 0.00462962962962962962962962962963
 
-local concreteBonus = 1.003;
-local standardBonus = 1.0;
 local scrapPenalty = 0.992;
 local waterPenalty = 0.9975;
+local standardBonus = 1.0;
+local concreteBonus = 1.003;
 
 local track_types = {}
-
-local oldTrackTypes= { { name = "curved-scrap-rail", max=(kpt)*80, q = scrapPenalty }  -- 
-		,  { name = "straight-scrap-rail", max=(kpt)*80, q = scrapPenalty }
-
-		,  { name = "curved-concrete-rail", max=(kpt)*720, q = concreteBonus }  -- hyperloop speed
-		,  { name = "straight-concrete-rail", max=(kpt)*720, q = concreteBonus }
-
-		,  { name = "curved-rail-power", max=(kpt)*360, q = standardBonus }
-		,  { name = "straight-rail-power", max=(kpt)*360, q = standardBonus }
-
-		,  { name = "curved-rail-wood-bridge", max=(kpt)*280, q = waterPenalty }
-		,  { name = "straight-rail-wood-bridge", max=(kpt)*280, q = waterPenalty }
-
-		,  { name = "bridge-curved-rail", max=(kpt)*280, q = waterPenalty }
-		,  { name = "bridge-straight-rail", max=(kpt)*280, q = waterPenalty }
-
-		,  { name = "curved-rail", max=(kpt)*360, q = standardBonus }  -- may also be concreteBonus
-		,  { name = "straight-rail", max=(kpt)*360, q = standardBonus }-- may also be concreteBonus
-		}
 
 local lastRail = {};
 local lastTick = 0;
@@ -115,19 +96,19 @@ end
 
 
 function setupTypes() 
-log( "Have some types:"..#global.track_types )
 	if global.track_types then
+		--log( "Have some types:"..#global.track_types )
 		for name,type in pairs(global.track_types) do
 			-- BridgeRailway
-			log( "track type:".. type );
+			--log( "track type:".. type );
 			if type == "bridge" then
 				track_types[#track_types+1] = { name = "bridge-curved-rail", max=(kpt)*280, q = waterPenalty }
 				track_types[#track_types+1] = { name = "bridge-straight-rail", max=(kpt)*280, q = waterPenalty }
 			end
 			-- JunkTrain
 			if type == "scrap" then
-				track_types[#track_types+1] = { name = "curved-scrap-rail", max=(kpt)*80, q = scrapPenalty } 
-				track_types[#track_types+1] = { name = "straight-scrap-rail", max=(kpt)*80, q = scrapPenalty }
+				track_types[#track_types+1] = { name = "curved-scrap-rail", max=(kpt)*85, q = scrapPenalty } 
+				track_types[#track_types+1] = { name = "straight-scrap-rail", max=(kpt)*85, q = scrapPenalty }
 			end
 			-- bio industries woor bridge
 			if type == "bi-bridge" then
@@ -362,7 +343,7 @@ function limitTrain( tick, index, train )
 			if _lastRail.type then
 				if( train.speed > _lastRail.type.max ) then
 					--_lastRail.speed = speed;
-					train.speed = speed * tt.q;
+					train.speed = _lastRail.type.max;
 					--train.speed = _lastRail.type.max;
 					return;
 				end
@@ -431,9 +412,9 @@ function limitTrain( tick, index, train )
 				_lastRail.type = tt;
 				--log( "train speed:".. train.speed.. "something:".. tt.max.. " Q:"..tt.q );
 				speed = speed * tt.q;
-				--if( speed > tt.max ) then
-					--speed = speed - (( speed-tt.max ) * 0.01 * ticks);
-				--end
+				if( speed > tt.max ) then
+					speed = speed - (( speed-tt.max ) * 0.03 * ticks);
+				end
 				break
 			end
 		end

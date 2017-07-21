@@ -42,13 +42,13 @@ Limit trains based on track type they are on.  This is the table of modifiers us
 ### With Mod
 
   - Increase max speed from 64.8 to 256.2
-  - Decrease air resistance from 3% to 1.2%
+  - Decrease air resistance from 3% to 0.9% (to get back up to normal speed on scrap rail)
 
 |Track Type| Wood/Coal | Solid Fuel | Rocket Fuel |
 |:----- |:------:|:---:|:---:|
-| Scrap | 30.0 | | 57 |
+| Scrap | 33.2 | 40.8  | 63 |
 | Water | ?? | ?? | ?? |
-| Standard | 80 | 120 |  152 |
+| Standard | 80 | 130.7 |  152 |
 | Concrete | ?? | ?? | ?? |
 
 ## Hybrid Train (Rail Power System mod)
