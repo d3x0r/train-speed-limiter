@@ -255,7 +255,7 @@ function setupEvents()
         if game.entity_prototypes["hybrid-train"] and game.entity_prototypes["bi-straight-rail-wood"] then
 		function OnBuildEntity(entity)
 		-- remove automatic connected cables
-	log( "something1:".. entity.name );
+			--log( "something1:".. entity.name );
 			onGlobalBuilt(entity)
 			--log_keys( entities );
 			if entities[entity.name] and entities[entity.name].onBuilt then
@@ -305,7 +305,7 @@ end)
 
 
 script.on_configuration_changed( function()
-	log( "CONFIGURATION CHANGED" );
+	--log( "CONFIGURATION CHANGED" );
 	glob_init()
 end)
 
@@ -546,6 +546,51 @@ end)
 
 script.on_event(defines.events.on_surface_created, function(event)
      --log( "surface create?" );
+end)
+
+
+
+--script.on_event(defines.events.on_player_setup_blueprint, function(event)
+script.on_event(defines.events.on_player_configured_blueprint, function(event)
+     --log( "surface create?" );
+	local player = game.players[event.player_index]
+	local stack = player.cursor_stack
+	--log( "blueprint seetup." );
+	if not stack.valid then 
+		log( "stack not valid" );
+		return
+	end
+	if not stack.valid_for_read then
+		log( "stack not valid for read" );
+		return
+	end
+	if stack.name ~= "blueprint" then
+		log( "stack is not a blueprint" );
+		return
+	end	
+
+	local entities = stack.get_blueprint_entities()
+	--log( "blueprint has entities:".. #entities );
+	for k, entity in pairs (entities) do
+		if entity.name == ghostElectricPole then
+			entity.name = railPole;
+			items_changed = true;
+		end
+	end
+
+  local blueprint_icons = player.cursor_stack.blueprint_icons
+  for k=1,4 do
+    if( blueprint_icons[k] ) then
+        if blueprint_icons[k].signal.name == ghostElectricPole then
+          blueprint_icons[k].signal.name = railPole
+          break
+        end
+    end
+  end
+  player.cursor_stack.blueprint_icons = blueprint_icons  
+  stack.set_blueprint_entities(entities)
+
+	--local stack = player.cursor_stack.  event.player_index
 end)
 
 -- Init existing trains

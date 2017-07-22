@@ -39,11 +39,11 @@ entities["entity-ghost"]=entityghosts
 local railFromPole=function(entity,expectedItemType)
 	local x=entity.position.x
 	local y=entity.position.y
-	log( "(TSL) type:"..expectedItemType .. " around:"..entity.name.."  "..x..","..y  .." ep: "..entity.position.x..","..entity.position.y .. " dir:".. entity.direction);
-	local debugList = entity.surface.find_entities {{x-1.5,y-1.5},{x+1.5,y+1.5}}
-	for i =1,#debugList do
-		log( "found:"..debugList[i].name );
-	end
+	--log( "(TSL) type:"..expectedItemType .. " around:"..entity.name.."  "..x..","..y  .." ep: "..entity.position.x..","..entity.position.y .. " dir:".. entity.direction);
+	--local debugList = entity.surface.find_entities {{x-1.5,y-1.5},{x+1.5,y+1.5}}
+	--for i =1,#debugList do
+	--	log( "found:"..debugList[i].name );
+	--end
 	return entity.surface.find_entities_filtered{area = {{x-1.5,y-1.5},{x+1.5,y+1.5}}, name= expectedItemType}[1]
 end
 
@@ -54,7 +54,7 @@ local poleGhostEntities=function(entity)
 end
 
 local function connectWires(firstGhost,secondGhost)	
-	log( "(TSL)connectWires:".. tostring( firstGhost.name ).." to ".. tostring(secondGhost.name))
+	--log( "(TSL)connectWires:".. tostring( firstGhost.name ).." to ".. tostring(secondGhost.name))
 	if firstGhost and secondGhost then
 		firstGhost.connect_neighbour{wire=defines.wire_type.red,target_entity=secondGhost}
 		firstGhost.connect_neighbour{wire=defines.wire_type.green,target_entity=secondGhost}
@@ -64,7 +64,7 @@ end
 
 local function connectGhostsInsideRail(rail)
 	local ghostRailsEntities=railGhostEntities(rail)
-	log( "(TSL)conectGhosts:"..#ghostRailsEntities)
+	--log( "(TSL)conectGhosts:"..#ghostRailsEntities)
 	if #ghostRailsEntities<2 then
 		return
 	end
@@ -91,10 +91,10 @@ ghostElectricPoles.onBuilt=function(entity)
 end
 
 ghostElectricPolesNotSelectable.onBuilt = function(entity )
-	log( "TSL GEPNS." );
+	--log( "TSL GEPNS." );
 	local floorEntity = entity;
 
-	log( "(TSL)Raise event direction:".. entity.direction );
+	--log( "(TSL)Raise event direction:".. entity.direction );
 	--connectWires( floorEntity, newEntity );
 
 	--local newEntity=addGhostEntity(entity,{entity.position.x,entity.position.y},ghostElectricPole,true)	
@@ -102,12 +102,12 @@ ghostElectricPolesNotSelectable.onBuilt = function(entity )
 	--connectWires(floorEntity,newEntity)
 	local railToConnect=railFromPole(entity,straightRailConcretePower) or railFromPole(entity,curvedRailConcretePower)
 	         or railFromPole(entity,straightRailBridgePower) or railFromPole(entity,curvedRailBridgePower)
-	log( "rail to connect:"..tostring(railToConnect));
+	--log( "rail to connect:"..tostring(railToConnect));
 	local railEntity = closestRailGhostEntity(floorEntity,railToConnect);
 	if railEntity then
 		connectWires(floorEntity,railEntity)	
 	else
-		log( "(TSL)Failed to find rail entity to connect to." );
+		--log( "(TSL)Failed to find rail entity to connect to." );
 	end
 
 end
@@ -115,7 +115,7 @@ end
 entityghosts.onBuilt=function(entity)
 	local ghost_name= entity.ghost_prototype.name
 
-	log( "(TSL)ghost power?"..entity.name );
+	--log( "(TSL)ghost power?"..entity.name );
 	if ghost_name==ghostElectricPole then
 		game.surfaces[entity.surface.name].create_entity{
 			name="entity-ghost",
@@ -128,7 +128,7 @@ entityghosts.onBuilt=function(entity)
 end
 
 electricPole.onBuilt=function(entity)
-	log( "(TSL)Built POwer POle... lookging for entity?" );
+	--log( "(TSL)Built POwer POle... lookging for entity?" );
 	local newEntity=addGhostEntity(entity,{entity.position.x,entity.position.y},ghostElectricPole,true)	
 	local floorEntity=addGhostEntity(entity,{entity.position.x,entity.position.y},ghostElectricPoleNotSelectable,false)	
 	connectWires(floorEntity,newEntity)
