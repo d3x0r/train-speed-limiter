@@ -32,7 +32,13 @@ function addGhostEntity(entity,position,ghostEntityName,setConfig)
 end
 
 ghostRailAccu=function(entity)
-	return entity.surface.find_entities_filtered{area={{entity.position.x-0.5,entity.position.y-0.5},{entity.position.x+0.5,entity.position.y+0.5}},name=railAccu}[1]
+	if( entity.name == straightRailBridgePower or entity.name == curvedRailBridgePower ) then
+		return entity.surface.find_entities_filtered{area={{entity.position.x-0.5,entity.position.y-0.5}
+		            ,{entity.position.x+0.5,entity.position.y+0.5}},name=railAccuBridge}[1]
+	else
+		return entity.surface.find_entities_filtered{area={{entity.position.x-0.5,entity.position.y-0.5}
+		            ,{entity.position.x+0.5,entity.position.y+0.5}},name=railAccu}[1]
+	end
 end
 
 closestRailGhostEntity=function (entity,rail)

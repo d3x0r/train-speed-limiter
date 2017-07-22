@@ -130,6 +130,10 @@ if data.raw["straight-rail"]["straight-rail-power"] then
 
 	data.raw["straight-rail"][straightRailPower].icon = "__train-speed-limiter__/graphics/icons/rail-wood-power.png"
 	data.raw["rail-planner"][powerRail].icon = "__train-speed-limiter__/graphics/icons/rail-wood-power.png"
+	local tmp = data.raw["electric-energy-interface"]["rail-accu"].collision_mask;
+	--log_keys( tmp );
+	--tmp[#tmp+1] = "object-layer"
+	--log_keys( tmp );
 
 
 	if data.raw["straight-rail"]['bi-straight-rail-wood'] then
@@ -192,13 +196,20 @@ if data.raw["straight-rail"]["straight-rail-power"] then
                 	curved_rail = "curved-rail-concrete-power",
 		})
 
+		createData("electric-energy-interface","rail-accu","rail-accu-bridge",
+                { 
+			collision_mask={"object-layer","not-colliding-with-itself"}
+		})
+		createData("item","rail-accu","rail-accu-bridge",
+                { 
+		})
+
 		createData("recipe","powered-rail","powered-rail-bridge",
                 { 
 		        ingredients = { { "copper-cable", 3 }, { "bi-rail-wood-bridge", 1 } },
 		        result = "powered-rail-bridge",
 		        result_count = 1,
 		})
-
 
 		createData("recipe","powered-rail","powered-rail-concrete",
                 { 

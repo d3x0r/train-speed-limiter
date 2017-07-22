@@ -54,7 +54,7 @@ local track_types = {}
 local lastRail = {};
 local lastTick = 0;
 
-local function _log_keys(prefix,object)
+ function _log_keys(prefix,object)
     for _, __ in pairs(object) do
         log( prefix.._.."="..tostring(__) );
 	--if( type(__)=="string" or type(__)=="number" or type(__)=="function" or type(__)=="boolean" or type(__)=="nil"or type(__)=="thread") then
@@ -72,7 +72,7 @@ local function _log_keys(prefix,object)
 
 end
 
-local function log_keys(object)
+ function log_keys(object)
     _log_keys( "", object )
 end
 
@@ -216,7 +216,7 @@ function glob_init()
 	setupTypes();
 
 	local surfaces = game.surfaces;--players[event.player_index]
-	log_keys( surfaces );	
+	--log_keys( surfaces );	
     	for name,surface in pairs(surfaces) do
 		local trains = surface.get_trains();		
 		--log( "Surface trains:".. tostring(#trains) );
@@ -224,7 +224,7 @@ function glob_init()
 			local train = trains[i];
 			--log( "Surface add train:" .. trains[i].id );
 			global.trains[i] = train;
-			log_keys(train.locomotives )
+			--log_keys(train.locomotives )
 		end
 		
 	end
@@ -238,8 +238,9 @@ function setupEvents()
         if game.entity_prototypes["hybrid-train"] and game.entity_prototypes["bi-straight-rail-wood"] then
 		function OnBuildEntity(entity)
 		-- remove automatic connected cables
+	log( "something1:".. entity.name );
 			onGlobalBuilt(entity)
-
+			--log_keys( entities );
 			if entities[entity.name] and entities[entity.name].onBuilt then
 				entities[entity.name].onBuilt(entity)
 			end	
@@ -272,20 +273,21 @@ function setupEvents()
 end
 
 script.on_init(function()
-	log( "ON INIT" );
+	--log( "ON INIT" );
 	glob_init()
 end)
 
 script.on_load(function()
         -- game is not available.
         -- called when save is reloaded.
-	log( "ON LOAD" );
-	if game then log( "HAVE GAME" ) else log( "NO GAME" ) end
+
+	--log( "ON LOAD" );
+	--if game then log( "HAVE GAME" ) else log( "NO GAME" ) end
 	setupTypes();
 end)
 
 script.on_configuration_changed( function()
-	log( "CONFIGURATION CHANGED" );
+	--log( "CONFIGURATION CHANGED" );
 	glob_init()
 end)
 
@@ -308,7 +310,7 @@ script.on_event(defines.events.on_tick, function(event)
 	ticks = event.tick - lastTick;
 	lastTick = event.tick;
 	if not temp then 
-		log( "process: ".. #global.trains );
+		--log( "process: ".. #global.trains );
 		--log_keys( data.raw.entity.locomotive )
 		setupEvents();
 		temp = true;

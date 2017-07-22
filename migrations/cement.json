@@ -1,0 +1,12 @@
+{
+  "entity":
+  [
+    ["straight-rail-power-cement-power", "straight-rail-concrete-power"],
+    ["curved-rail-power-cement-power", "curved-rail-concrete-power"]
+  ],
+  "item":
+  [
+    ["straight-rail-power-cement-power", "straight-rail-concrete-power"],
+    ["powered-rail-cement", "powered-rail-concrete"]
+  ]
+}
