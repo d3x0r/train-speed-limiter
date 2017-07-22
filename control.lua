@@ -163,6 +163,21 @@ function setupTypes()
 end
 
 
+function migrateAccumulators() 
+	local surfaces = game.surfaces;--players[event.player_index]
+	--log_keys( surfaces );	
+	local i, j;
+    	for i=1,#surfaces do
+		accums = surfaces[i].find_entities_filtered{ name="rail-accu" }
+		for j=1, #accums do
+			if( accums[j].electric_buffer_size ~= 25000 ) then
+				--log( "update accumulator:"..accums[j].electric_buffer_size);
+				accums[j].electric_buffer_size = 25000;
+			end
+		end
+	end
+end
+
 function glob_init()
 	
 	global.trains = {}
@@ -228,6 +243,8 @@ function glob_init()
 		end
 		
 	end
+
+	migrateAccumulators();
 end
 
 function setupEvents()
@@ -286,8 +303,9 @@ script.on_load(function()
 	setupTypes();
 end)
 
+
 script.on_configuration_changed( function()
-	--log( "CONFIGURATION CHANGED" );
+	log( "CONFIGURATION CHANGED" );
 	glob_init()
 end)
 
