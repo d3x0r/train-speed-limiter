@@ -104,4 +104,24 @@ Hybrid and Nuclear locomotives, increased acceleration, so they get up to higher
 Junk train locomotive had to have lowered air resistance so it could approach the same speeds on junk rails.
 
 
+## Existing Issues
+
+Rail Power System mod requires updates to allow me to connect to cement and bridge rails.  A work-around is to connect a segment of standard
+powered rail to cement or bridge rails and use that to connect a rail power pole.  Also, the internal max power transfer for hybrid trains
+is hard coded to a small value, so new trains will be limited in speed, unable to draw the full 1500kW power from the rails.
+
+
+## Changelog
+
+0.0.5  
+  - fix bridge power rails. 
+  - Fix placing power poles to power new cement and bridge types. 
+  - Add update accumulators already on the map to the new required value
+  - add a bridge rail accumulator for placing powered bridge rails.
+  - tweaked junk train settings a little to make it a hair faster; normal player walk speed is 32kph, and the reduced value (30kph) I decided was
+too slow; so increased it to 33.1kph.
+
+0.0.4
+  - improved optional mod dependancy behavior; only define rail types to track based on which mods had been loaded.
+
 
