@@ -76,84 +76,56 @@ end
     _log_keys( "", object )
 end
 
-local function _log_keys(prefix,object)
-    for _, __ in pairs(object) do
-        log( _.."="..tostring(__) );
-	--if( type(__)=="string" or type(__)=="number" or type(__)=="function" or type(__)=="boolean" or type(__)=="nil"or type(__)=="thread") then
-	if( type(__)=="userdata" ) then
-		local meta = getmetatable(__) ;
-		if meta then
-		        _log_keys( prefix.."  ", getmetatable(__) );
-		else
-			log( "NIL Userdata?" );
-		end
-        elseif type(__) == "table" then
-	        _log_keys( prefix.."  ", __ );
-	end
-    end
-
-end
-
 
 function setupTypes() 
 	if global.track_types then
+		track_types = {} -- reset this list (probably new items added or deleted anyway
+		local bi_found = false;
 		--log( "Have some types:"..#global.track_types )
 		for name,type in pairs(global.track_types) do
+			if( type == "bi-wood" ) then
+				bi_found = true;
+				break
+			end
+		end
+		for name,type in pairs(global.track_types) do
 			-- BridgeRailway
-			--log( "track type:".. type );
 			if type == "bridge" then
 				track_types[#track_types+1] = { name = "bridge-curved-rail", max=(kpt)*280, q = waterPenalty }
 				track_types[#track_types+1] = { name = "bridge-straight-rail", max=(kpt)*280, q = waterPenalty }
-			end
 			-- JunkTrain
-			if type == "scrap" then
-				track_types[#track_types+1] = { name = "curved-scrap-rail", max=(kpt)*85, q = scrapPenalty } 
-				track_types[#track_types+1] = { name = "straight-scrap-rail", max=(kpt)*85, q = scrapPenalty }
-			end
-			-- bio industries woor bridge
-			if type == "bi-bridge" then
+			elseif type == "scrap" then
+				track_types[#track_types+1] = { name = "curved-scrap-rail", max=(kpt)*95, q = scrapPenalty } 
+				track_types[#track_types+1] = { name = "straight-scrap-rail", max=(kpt)*95, q = scrapPenalty }
+			elseif type == "bi-bridge" then
+				-- bio industries woor bridge
 				track_types[#track_types+1] = { name = "curved-rail-wood-bridge", max=(kpt)*280, q = waterPenalty }
 				track_types[#track_types+1] = { name = "straight-rail-wood-bridge", max=(kpt)*280, q = waterPenalty }
 
-			end
-
-			if type == "bi-wood" then
-				local found_standard = false;
-				for i=1, #track_types do
-					if( track_types[i].name == "straight-rail" ) then
-						found_standard = true;
-						track_types[i].q = concreteBonus;
-					end
-					if( track_types[i].name == "curved-rail" ) then
-						found_standard = true;
-						track_types[i].q = concreteBonus;
-					end
-				end
-				if( not found_standard ) then
-					track_types[#track_types+1] = { name = "straight-rail", max=(kpt)*360, q = concreteBonus };
-					track_types[#track_types+1] = { name = "curved-rail", max=(kpt)*360, q = concreteBonus };
-				end
-
-				track_types[#track_types+1] = { name = "bi-curved-rail-wood", max=(kpt)*280, q = standardBonus }
-				track_types[#track_types+1] = { name = "bi-straight-rail-wood", max=(kpt)*280, q = standardBonus }
-			end
-			-- RailPowerSystem
-			if type == "straight-rail-power" then
+			elseif type == "bi-wood" then
+				track_types[#track_types+1] = { name = "bi-curved-rail-wood", max=(kpt)*360, q = standardBonus }
+				track_types[#track_types+1] = { name = "bi-straight-rail-wood", max=(kpt)*360, q = standardBonus }
+			elseif type == "power" then
+				-- RailPowerSystem
 				track_types[#track_types+1] = { name = "curved-rail-power", max=(kpt)*360, q = standardBonus };
 				track_types[#track_types+1] = { name = "straight-rail-power", max=(kpt)*360, q = standardBonus };
-			end
-			if type == "power-bridge" then
-				track_types[#track_types+1] = { name = "curved-rail-power-bridge-power", max=(kpt)*360, q = waterPenalty };
-				track_types[#track_types+1] = { name = "straight-rail-power-bridge-power", max=(kpt)*360, q = waterPenalty };
-			end
-			if type == "power-concrete" then
-				track_types[#track_types+1] = { name = "curved-rail-power-concrete-power", max=(kpt)*360, q = concreteBonus };
-				track_types[#track_types+1] = { name = "straight-rail-power-concrete-power", max=(kpt)*360, q = concreteBonus };
-			end
+			elseif type == "power-bridge" then
+				-- RailPowerSystem + BI wood
+				track_types[#track_types+1] = { name = "curved-rail-bridge-power", max=(kpt)*280, q = waterPenalty };
+				track_types[#track_types+1] = { name = "straight-rail-bridge-power", max=(kpt)*280, q = waterPenalty };
+			elseif type == "power-concrete" then
+				--log( "power concrete..." );
+				track_types[#track_types+1] = { name = "curved-rail-concrete-power", max=(kpt)*720, q = concreteBonus };
+				track_types[#track_types+1] = { name = "straight-rail-concrete-power", max=(kpt)*720, q = concreteBonus };
 
-			if type == "standard" then
-				track_types[#track_types+1] = { name = "curved-rail-power", max=(kpt)*360, q = standardBonus };
-				track_types[#track_types+1] = { name = "straight-rail-power", max=(kpt)*360, q = standardBonus };
+			elseif type == "standard" then
+				if( bi_found ) then
+					track_types[#track_types+1] = { name = "straight-rail", max=(kpt)*720, q = concreteBonus };
+					track_types[#track_types+1] = { name = "curved-rail", max=(kpt)*720, q = concreteBonus };
+				else
+					track_types[#track_types+1] = { name = "straight-rail", max=(kpt)*360, q = standardBonus };
+					track_types[#track_types+1] = { name = "curved-rail", max=(kpt)*360, q = standardBonus };
+				end
 			end
 
 
@@ -189,17 +161,17 @@ function glob_init()
 
 			-- BridgeRailway
 			if entity.name == "bridge-straight-rail" then
-				--log( "add type bridge".. #global.track_types );
+				--log( "add type bridge" );
 				global.track_types[#global.track_types+1] = "bridge";
 
 			-- JunkTrain
 			elseif entity.name == "straight-scrap-rail" then
-				--log( "add type scrap".. #global.track_types );
+				--log( "add type scrap" );
 				global.track_types[#global.track_types+1] = "scrap";
 
 			-- bio industries wood bridge
 			elseif entity.name == "bi-straight-rail-wood-bridge" then
-				--log( "add type bi-bridge".. #global.track_types );
+				--log( "add type bi-bridge" );
 				global.track_types[#global.track_types+1] = "bi-bridge";
 
 			-- bio industries wood
@@ -363,8 +335,10 @@ function limitTrain( ticks, index, train )
 				speed = speed * (_lastRail.type.q*ticks);
 				if( train.speed > _lastRail.type.max ) then
 					--_lastRail.speed = speed;
-					train.speed = (( speed-_lastRail.type.max ) * 0.03 * ticks);
+					--log( "update train speed on:" .. _lastRail.type.name .. " by ".. _lastRail.type.q .. " from ".. train.speed );
+					train.speed = speed - (( speed-_lastRail.type.max ) * 0.03 * ticks);
 					--train.speed = _lastRail.type.max;
+					--log( "to:" .. train.speed );
 					return;
 				end
 			end
@@ -435,6 +409,7 @@ function limitTrain( ticks, index, train )
 				if( speed > tt.max ) then
 					speed = speed - (( speed-tt.max ) * 0.03 * ticks);
 				end
+				--log( "update train speed on:" .. tt.name .. " by ".. tt.q .. " from ".. train.speed .. " to ".. speed);
 				break
 			end
 		end
@@ -557,15 +532,15 @@ script.on_event(defines.events.on_player_configured_blueprint, function(event)
 	local stack = player.cursor_stack
 	--log( "blueprint seetup." );
 	if not stack.valid then 
-		log( "stack not valid" );
+		--log( "stack not valid" );
 		return
 	end
 	if not stack.valid_for_read then
-		log( "stack not valid for read" );
+		--log( "stack not valid for read" );
 		return
 	end
 	if stack.name ~= "blueprint" then
-		log( "stack is not a blueprint" );
+		--log( "stack is not a blueprint" );
 		return
 	end	
 
