@@ -350,7 +350,7 @@ function limitTrain( ticks, index, train )
 	local frontRail = train.front_rail;
 	local _lastRail = lastRail[index];
 	local speed = train.speed;
-	
+	log( "train buffer:".. train.electric_buffer_size );
 	if( _lastRail ) then
 		if( _lastRail.rail ~= frontRail ) then
 			--if( index == 1 ) then 
