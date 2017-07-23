@@ -49,6 +49,8 @@ if data.raw.locomotive["JunkTrain"] then
 	-- 64kmh 1.0 track
 	data.raw.locomotive.JunkTrain.max_speed = 1.0;  -- default 0.3
 	data.raw.locomotive.JunkTrain.air_resistance = 0.009;  -- default 0.03
+	data.raw["rail-planner"]["scrap-rail"].icon = "__train-speed-limiter__/graphics/icons/scrap-rail.png"
+
 end
 
 if data.raw.locomotive["hybrid-train"] then
@@ -59,7 +61,7 @@ if data.raw.locomotive["hybrid-train"] then
 
 	data.raw.locomotive["hybrid-train"].max_power = "1500kW";  -- 600kW default
 	--reversing_power_modifier
-	data.raw.locomotive["hybrid-train"].max_speed = 4.0; -- 1.5 default
+	data.raw.locomotive["hybrid-train"].max_speed = 1.5;--4.0; -- 1.5 default
 	data.raw.locomotive["hybrid-train"].air_resistance = 0.020; -- 0.0075 default
 	data.raw["electric-energy-interface"]["rail-accu"].energy_source.buffer_capacity="25kJ";
 

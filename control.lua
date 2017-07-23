@@ -54,30 +54,40 @@ local track_types = {}
 local lastRail = {};
 local lastTick = 0;
 
- function _log_keys(prefix,object)
-    for _, __ in pairs(object) do
-        log( prefix.._.."="..tostring(__) );
+local enableHybridTick = false;
+local hybridEnergy = 0;
+local hybridLocos = {};
+local hybridEngines = {};
+
+local temp = false;  -- one time init for tick to sync lastTick
+local backwardRail = {rail_direction=defines.rail_direction.back, rail_connection_direction=defines.rail_connection_direction.straight};
+local previousAccuTable = {};
+
+
+local function _log_keys(prefix,object)
+	for _, __ in pairs(object) do
+		log( prefix.._.."="..tostring(__) );
 	--if( type(__)=="string" or type(__)=="number" or type(__)=="function" or type(__)=="boolean" or type(__)=="nil"or type(__)=="thread") then
 	if( type(__)=="userdata" ) then
 		local meta = getmetatable(__) ;
 		if meta then
-		        _log_keys( prefix.."  ", getmetatable(__) );
+			_log_keys( prefix.."  ", getmetatable(__) );
 		else
 			log( "NIL Userdata?" );
 		end
-        elseif type(__) == "table" then
-	        _log_keys( prefix.."  ", __ );
+	elseif type(__) == "table" then
+		_log_keys( prefix.."  ", __ );
 	end
-    end
+	end
 
 end
 
- function log_keys(object)
-    _log_keys( "", object )
+local function log_keys(object)
+	_log_keys( "", object )
 end
 
 
-function setupTypes() 
+local function setupTypes() 
 	if global.track_types then
 		track_types = {} -- reset this list (probably new items added or deleted anyway
 		local bi_found = false;
@@ -135,25 +145,86 @@ function setupTypes()
 end
 
 
-function migrateAccumulators() 
+local function logAccumulators() 
 	local surfaces = game.surfaces;--players[event.player_index]
 	--log_keys( surfaces );	
 	local i, j;
-    	for i=1,#surfaces do
+	for i=1,#surfaces do
 		accums = surfaces[i].find_entities_filtered{ name="rail-accu" }
+		log( "Total:".. #accums );
 		for j=1, #accums do
-			if( accums[j].electric_buffer_size ~= 25000 ) then
-				--log( "update accumulator:"..accums[j].electric_buffer_size);
-				accums[j].electric_buffer_size = 25000;
+			if( accums[j].circuit_connected_entities ) then
+				log( "accum:"..j.. " at "..accums[j].position.x.. ","..accums[j].position.y.." connections:".. tostring(accums[j].circuit_connected_entities)  );
 			end
+			--log( "accum:"..j.." connections:".. accums[j].neighbours );--circuit_connected_entities );
+			if( accums[j].electric_buffer_size ~= 25000 ) then
+				log( "accum "..j.." has(buf):".. accums[j].electric_buffer_size )
+			end
+			if( accums[j].energy ~= 25000  and accums[j].energy ~= 11000 ) then
+				log( "accum "..j.. " at "..accums[j].position.x.. ","..accums[j].position.y.." has(nrg):".. accums[j].energy )
+			end
+			if( accums[j].electric_input_flow_limit ~= 25000 and accums[j].electric_input_flow_limit ~= 15000000 ) then
+				log( "accum "..j.." has(in ):".. accums[j].electric_input_flow_limit )
+			end
+			if( accums[j].electric_input_flow_limit ~= 25000 and accums[j].electric_output_flow_limit ~= 15000000) then
+				log( "accum "..j.." has(out):".. accums[j].electric_output_flow_limit )
+			end
+			if( accums[j].electric_emissions ~= 0 ) then
+				log( "accum "..j.." has(emi):".. accums[j].electric_emissions )
+			end
+			if( accums[j].power_usage ~= 0 ) then
+				log( "accum "..j.." has(usg):".. accums[j].power_usage )
+			end
+			if( accums[j].electric_drain > 0 ) then
+				log( "accum "..j.." has(drain):".. accums[j].electric_drain )
+			end
+
 		end
 	end
 end
 
-function glob_init()
+local function loadEngines( i, train )
+	local j;
+
+				log( "Setup hybrid engines" );
+			--if enableHybridTick then
+				local movers = train.locomotives.front_movers;
+				local added = false;
+				local engines = {};
+				local loco = {};
+				--log_keys( hybridLocos )
+				for j=1,#movers do
+					log( "FMover:"..movers[j].name );
+					if( movers[j].name == 'hybrid-train' ) then
+						if not added then
+							hybridLocos[i] = { train=train, engines=engines};
+							added = true;
+						end
+						engines[#engines+1] = movers[j];
+					end
+				end
+				local movers = train.locomotives.back_movers;
+				for j=1,#movers do
+					log( "BMover:"..movers[j].name );
+					if( movers[j].name == 'hybrid-engine' ) then
+						if not added then
+							hybridLocos[i] = { train=train, engines=engines};
+							added = true;
+						end
+						engines[#engines+1] = movers[j];
+					end
+				end
+			--end
+
+end
+
+
+
+local function glob_init()
 	
 	global.trains = {}
 	global.track_types = {};
+	global.hybrid_train_energy_buffer = 0;
 	local index = 1; -- for adding available rail types
 	for name,entity in pairs(game.entity_prototypes) do
 		--log( "check entity:"..entity.type.." : "..entity.name );
@@ -204,27 +275,29 @@ function glob_init()
 
 	local surfaces = game.surfaces;--players[event.player_index]
 	--log_keys( surfaces );	
-    	for name,surface in pairs(surfaces) do
+	for name,surface in pairs(surfaces) do
 		local trains = surface.get_trains();		
-		--log( "Surface trains:".. tostring(#trains) );
+		log( "Surface trains:".. tostring(#trains) .. " "..tostring(enableHybridTick ));
 		for i=1, #trains do
 			local train = trains[i];
 			--log( "Surface add train:" .. trains[i].id );
 			global.trains[i] = train;
 			--log_keys(train.locomotives )
+			if enableHybridTick then
+				loadEngines( i, train );
+			end
 		end
 		
 	end
 
-	migrateAccumulators();
 end
 
-function setupEvents()
+local function setupEvents()
 
 ---------------------------------------------------
 -- build and unbuild
 ---------------------------------------------------
-        if game.entity_prototypes["hybrid-train"] and game.entity_prototypes["bi-straight-rail-wood"] then
+	if game.entity_prototypes["hybrid-train"] and game.entity_prototypes["bi-straight-rail-wood"] then
 		function OnBuildEntity(entity)
 		-- remove automatic connected cables
 			--log( "something1:".. entity.name );
@@ -261,86 +334,41 @@ function setupEvents()
 	end
 end
 
-script.on_init(function()
-	--log( "ON INIT" );
-	glob_init()
-end)
-
-script.on_load(function()
-        -- game is not available.
-        -- called when save is reloaded.
-
-	--log( "ON LOAD" );
-	--if game then log( "HAVE GAME" ) else log( "NO GAME" ) end
-	setupTypes();
-end)
-
-
-script.on_configuration_changed( function()
-	--log( "CONFIGURATION CHANGED" );
-	glob_init()
-end)
-
 
 
 
 ---------------------------------------------------
 -- TICK
 ---------------------------------------------------
-
-local temp = false;
-script.on_event(defines.events.on_tick, function(event)
-	--if event.research.name==trainWhistleTech then
-	--log( "active trains:"..#global.trains);
-	local ticks = 0;
-	if lastTick == 0 then
-		lastTick = event.tick;
-		return;
-	end
-	ticks = event.tick - lastTick;
-	lastTick = event.tick;
-	if not temp then 
-		--log( "process: ".. #global.trains );
-		--log_keys( data.raw.entity.locomotive )
-		setupEvents();
-		temp = true;
-        end
-	for i=1,#global.trains do
-		if global.trains[i] then
-			if( global.trains[i].valid ) then
-				limitTrain( ticks, i, global.trains[i] );		
-			else 
-				--log( "skipping train (internal index):".. i );
-				global.trains[i] = nil;
-			end
-		end
-	end
-	--end
-end)
-
-function limitTrain( ticks, index, train ) 
+local function limitTrain( ticks, index, train ) 
 	local frontRail = train.front_rail;
 	local _lastRail = lastRail[index];
 	local speed = train.speed;
+
 	--log( "train buffer:".. train.max_energy_usage );
 	if( _lastRail ) then
 		if( _lastRail.rail ~= frontRail ) then
-			--if( index == 1 ) then 
-			--	log( "tickdel train 1="..(ticks));
-			--end
+			log( "New Rail..." );
 			_lastRail.rail = frontRail;
-		 	-- new rail type - need to go down and find the track.
 		else
-			if _lastRail.type then
-				speed = speed * (_lastRail.type.q*ticks);
-				if( train.speed > _lastRail.type.max ) then
-					--_lastRail.speed = speed;
-					--log( "update train speed on:" .. _lastRail.type.name .. " by ".. _lastRail.type.q .. " from ".. train.speed );
-					train.speed = speed - (( speed-_lastRail.type.max ) * 0.03 * ticks);
+			local tt = _lastRail.type;
+			if tt then
+				if( speed >= (_lastRail.speed * 0.97) ) then
+					log( "(ST)update train speed on:" .. tt.name .. " by ".. tt.q .. " from ".. train.speed );
+					speed = speed * (tt.q*ticks);
+				else
+					log( "SLOWING" )
+				end
+				if( speed > tt.max ) then
+					log( "(ST)Overspeed" );
+					speed = speed - (( tt.max ) * 0.03 * ticks);
 					--train.speed = _lastRail.type.max;
 					--log( "to:" .. train.speed );
-					return;
 				end
+				log( "update train speed from:" .. train.speed.." lastSet: ".. _lastRail.speed .. " to ".. speed);
+				train.speed = speed;
+				_lastRail.speed = speed;
+				return;
 			end
 		end
 	else 
@@ -357,6 +385,11 @@ function limitTrain( ticks, index, train )
 		--log( "no movers on this train..." );
 --		return
 --	end
+
+--	log( "loco:".. tostring(frontLoco.name )); 
+--	log( "riding  State:".. tostring(frontLoco.riding_state )); 
+--	log( "riding  State:".. tostring(train.riding_state )); 
+
 	--local currentFuel = frontLoco.get_burnt_result_inventory();
 --	local burner = frontLoco.burner;
 --	if burner then 
@@ -369,66 +402,132 @@ function limitTrain( ticks, index, train )
 --	end
 	
 	-- vehicle does not mean train... must be car or player
-	--if( index == 2 ) then log( "riding  State:".. tostring(frontLoco.riding_state )); end
+	---if( index == 2 ) then 
+	--   log( "riding  State:".. tostring(frontLoco.riding_state )); 
+	--end
 
 	if( speed > 0.001 ) then
-		--local scalar = 0.1;
-		--log( frontLoco.name.."train speed:".. train.speed.."("..(train.speed/kpt)..")"  .. " delta:" .. ((speed-_lastRail.speed)/kpt) .. " fixed accel:"..((speed-_lastRail.speed + (_lastRail.speed*0.0075) )/kpt) );
-		--if( speed >= _lastRail.speed ) then
-			--log( frontLoco.name.."train speed bonus:".. ((speed-_lastRail.speed) * 1.0 ) );
-			--speed = speed + ((speed-_lastRail.speed) * 1.5 );
-			--speed = speed * 1.02;
-			--scalar = 0.2;
-			--speed = speed * (1.003  * ticks); -- 1.005 is more than the train can stop
-			
-			--speed = speed * 1.001;
-
-		--end
-			--speed = speed * 1.001;
-			--speed = speed * 0.95;
-			--  -- this is a good amount for slow track limiter on trains  
-
-		-- scrap rail penalty
-		-- speed = speed * 0.992;
-
-		-- bridge rail penalty
-		-- speed = speed * 0.9975;
-
-		-- concrete rail bonus
-		-- speed = speed * 1.0005;
-		
-		--speed = speed * 0.992;
-		--speed = speed * 1.003;
-		for i=1, #track_types do
-			local tt = track_types[i];
-			--log( "track type check:"..tt.name..  " == "..frontRail.name );
-			if( tt.name == frontRail.name ) then
-				_lastRail.type = tt;
-				--log( "train speed:".. train.speed.. "something:".. tt.max.. " Q:"..tt.q );
-				speed = speed * (tt.q*ticks);
-				if( speed > tt.max ) then
-					speed = speed - (( speed-tt.max ) * 0.03 * ticks);
+		local tt;
+		local fasterTrack = false;
+		log( "Increase ".. tostring( speed >= _lastRail.speed ) .. " speed:"..speed.." old:".. _lastRail.speed );
+			for i=1, #track_types do
+				tt = track_types[i];
+				--log( "track type check:"..tt.name..  " == "..frontRail.name );
+				if( tt.name == frontRail.name ) then
+					if _lastRail.type then
+						if( tt.q > _lastRail.type.q ) then
+							log( "FASTER" );
+							fasterTrack = true;
+						end
+					end
+					_lastRail.type = tt;
+					break;
 				end
-				--log( "update train speed on:" .. tt.name .. " by ".. tt.q .. " from ".. train.speed .. " to ".. speed);
-				break
 			end
+		if( fasterTrack or speed >= (_lastRail.speed * 0.97 ) ) then
+			log( "train speed:".. train.speed.. "something:".. tt.max.. " Q:"..tt.q );
+			speed = speed * (tt.q*ticks);
+			log( "update train speed on:" .. tt.name .. " by ".. tt.q .. " from ".. train.speed .. " to ".. speed);
+			--log( "set train speed" .. train.id .. " to "..speed.. "ticks:" ..ticks );
+		else
+			log( "SLOWER:".. train.speed.. "something:".. tt.max.. " Q:"..tt.q );
+			
 		end
-		--_lastRail.speed = speed;
-		--log( "set train speed" .. train.id .. " to "..speed.. "ticks:" ..ticks );
+		if( speed > tt.max ) then
+			log( "OverSpeed!" );
+			speed = speed - (( speed-tt.max ) * 0.03 * ticks);
+		end
+		log( "update train speed from:"..train.speed .. " last:" .. _lastRail.speed .. " to ".. speed);
 		train.speed = speed;
+	else
+		log( "update train speed on:" .. _lastRail.speed .. " to ".. speed);
 	end
-		
+
+	_lastRail.speed = speed;
 	--log( 'train: '..train.id..'('..frontLoco.name..') is on:'..frontRail.name );
 end
+
+
+script.on_event(defines.events.on_tick, function(event)
+	--if event.research.name==trainWhistleTech then
+	--log( "active trains:"..#global.trains);
+	local ticks = 0;
+	if lastTick == 0 then
+		lastTick = event.tick;
+		return;
+	end
+	ticks = event.tick - lastTick;
+	lastTick = event.tick;
+	if( enableHybridTick ) then
+		--log( "Previous accums:".. #previousAccuTable );
+		--for i=1, #previousAccuTable do
+		--	local accum = previousAccuTable[i];
+		--	if accum.valid then
+		--		log( "Clear electric_drawin on prior" );
+		--		accum.electric_drain=0
+		--	end
+		--end
+		--previousAccuTable = {};
+		local index = 1;
+		for i,loco in pairs( hybridLocos)  do
+			local train = loco.train;
+			local rail = train.front_rail;
+			for j=1, #loco.engines do
+				local engine = loco.engines[j];
+				local requiredPower=hybridEnergy-engine.energy;
+				local ghostAccu=ghostRailAccu(rail)
+				--log( "Rail:".. tostring(rail.name).. " train has ".. engine.energy.. " accum has:".. ghostAccu.energy .. " draining:"..ghostAccu.electric_drain );
+				if ghostAccu then
+					local max_power = ghostAccu.energy
+					local power_transfer = 0
+					if (max_power < requiredPower) then
+						power_transfer = max_power
+					else
+						power_transfer = requiredPower
+					end
+				  
+--					ghostAccu.electric_drain = power_transfer
+					--  Transfer energy that will be drained over the next second into some entity
+					engine.energy = engine.energy + power_transfer
+					ghostAccu.energy=max_power-power_transfer
+					previousAccuTable[index ] = ghostAccu;
+					index = index+1;
+				end
+				
+				rail = rail.get_connected_rail(backwardRail)
+				if not rail then break end
+			end
+		end
+		--logAccumulators();
+	end
+	if not temp then 
+		--log( "process: ".. #global.trains );
+		--log_keys( data.raw.entity.locomotive )
+		setupEvents();
+		temp = true;
+	end
+	for i=1,#global.trains do
+		if global.trains[i] then
+			if( global.trains[i].valid ) then
+				limitTrain( ticks, i, global.trains[i] );		
+			else 
+				--log( "skipping train (internal index):".. i );
+				global.trains[i] = nil;
+			end
+		end
+	end
+	--end
+end)
 
 
 ---------------------------------------------------
 --On train created
 ---------------------------------------------------
+
 script.on_event(defines.events.on_train_created, function(event)
 	local train = event.train;
-
 	--log( "Created Train:"..train.id.. " mover:"..tostring(train.locomotives.front_movers[1]).. "  id1:"..tostring(event.old_train_id_1).."   id2:"..tostring(event.old_train_id_2)  );
+	local i;
 	
 	if event.old_train_id_1 then
 		--log( "check total: ".. #global.trains );
@@ -437,11 +536,15 @@ script.on_event(defines.events.on_train_created, function(event)
 			if not global.trains[i].valid then
 				--log( " clear slot:"..i );
 				global.trains[i] = nil;
+				if enableHybridTick then
+					hybridLocos[i] = nil;
+				end
 			end
 		end
 	end
-
-	local i;
+	if not train.valid then
+		return
+	end
 
 	--local loco = train.locomotives.front_movers[1];
 
@@ -480,7 +583,7 @@ script.on_event(defines.events.on_train_created, function(event)
 
 	for i=1, #global.trains do
 		if global.trains[i] == train then
-			--log( "train already tracked in global:"..train.id);
+			log( "train already tracked in global:"..train.id);
 			return;
 		end
 	end
@@ -490,11 +593,19 @@ script.on_event(defines.events.on_train_created, function(event)
 		if not global.trains[i] then
 			--log( "filling train into missing slot." );
 			global.trains[i] = train;
+
+			if enableHybridTick then
+				loadEngines( i, train );
+			end
 			return;
 		end
-	end                       	
+	end
 	--log( "filling train into last slot.".. (#global.trains+1) );
-	global.trains[#global.trains+1] = train;
+	i = #global.trains+1;
+	global.trains[i] = train;
+	if enableHybridTick then
+		loadEngines( i, train );
+	end
 end )
 
 
@@ -508,6 +619,7 @@ script.on_event(defines.events.on_player_mined_entity, function(event)
 			if global.trains[i] == train then
 				--log( "Found train to remove".. i );
 				global.trains[i] = nil;
+				hybridLocos[i] = nil;
 			end
 		end
 	
@@ -516,59 +628,105 @@ script.on_event(defines.events.on_player_mined_entity, function(event)
 end)
 
 script.on_event(defines.events.on_pre_surface_deleted, function(event)
-     --log( "pre surface delete?" );
+	--log( "pre surface delete?" );
 end)
 
 script.on_event(defines.events.on_surface_created, function(event)
-     --log( "surface create?" );
+	--log( "surface create?" );
 end)
 
 
 
---script.on_event(defines.events.on_player_setup_blueprint, function(event)
-script.on_event(defines.events.on_player_configured_blueprint, function(event)
-     --log( "surface create?" );
-	local player = game.players[event.player_index]
-	local stack = player.cursor_stack
-	--log( "blueprint seetup." );
-	if not stack.valid then 
-		--log( "stack not valid" );
-		return
-	end
-	if not stack.valid_for_read then
-		--log( "stack not valid for read" );
-		return
-	end
-	if stack.name ~= "blueprint" then
-		--log( "stack is not a blueprint" );
-		return
-	end	
-
-	local entities = stack.get_blueprint_entities()
-	--log( "blueprint has entities:".. #entities );
-	for k, entity in pairs (entities) do
-		if entity.name == ghostElectricPole then
-			entity.name = railPole;
-			items_changed = true;
+function enableBlueprintFix()
+	--script.on_event(defines.events.on_player_setup_blueprint, function(event)
+	script.on_event(defines.events.on_player_configured_blueprint, function(event)
+		--log( "surface create?" );
+		local player = game.players[event.player_index]
+		local stack = player.cursor_stack
+		--log( "blueprint seetup." );
+		if not stack.valid then 
+			--log( "stack not valid" );
+			return
 		end
-	end
-
-  local blueprint_icons = player.cursor_stack.blueprint_icons
-  for k=1,4 do
-    if( blueprint_icons[k] ) then
-        if blueprint_icons[k].signal.name == ghostElectricPole then
-          blueprint_icons[k].signal.name = railPole
-          break
-        end
-    end
-  end
-  player.cursor_stack.blueprint_icons = blueprint_icons  
-  stack.set_blueprint_entities(entities)
-
-	--local stack = player.cursor_stack.  event.player_index
-end)
-
+		if not stack.valid_for_read then
+			--log( "stack not valid for read" );
+			return
+		end
+		if stack.name ~= "blueprint" then
+			--log( "stack is not a blueprint" );
+			return
+		end	
+	        
+		local entities = stack.get_blueprint_entities()
+		--log( "blueprint has entities:".. #entities );
+		for k, entity in pairs (entities) do
+			if entity.name == ghostElectricPole then
+				entity.name = railPole;
+				items_changed = true;
+			end
+		end
+	        
+		local blueprint_icons = player.cursor_stack.blueprint_icons
+		for k=1,4 do
+			if( blueprint_icons[k] ) then
+				if blueprint_icons[k].signal.name == ghostElectricPole then
+					blueprint_icons[k].signal.name = railPole
+					break
+				end
+			end
+		end
+		player.cursor_stack.blueprint_icons = blueprint_icons
+		stack.set_blueprint_entities(entities)
+	        
+		--local stack = player.cursor_stack. event.player_index	end)
+	end)
+end
 -- Init existing trains
 --local surfaces = game.surfaces;--players[event.player_index]
 --log_keys( surfaces );
+
+--------------------------------------------------
+-- Startup Events
+--------------------------------------------------
+
+
+script.on_init(function()
+	log( "ON INIT" );
+	glob_init()
+end)
+
+script.on_load(function()
+	-- game is not available.
+	-- called when save is reloaded.
+
+	log( "ON LOAD" );
+	--if game then log( "HAVE GAME" ) else log( "NO GAME" ) end
+	setupTypes();
+	hybridEnergy = global.hybrid_train_energy_buffer
+        enableHybridTick = ( hybridEnergy ~= 0 )
+end)
+
+
+script.on_configuration_changed( function()
+	log( "CONFIGURATION CHANGED" );
+	local mods = game.active_mods;
+	for mod,version in pairs(mods) do
+		log( "Mod:"..mod.." "..version )
+		if( mod == 'RailPowerSystem' ) then
+			if( version == '0.1.4' ) then
+				enableHybridTick = true;
+				log( "RAIL SYSTEM UPGRADE")
+                                global.hybrid_train_energy_buffer = game.entity_prototypes["hybrid-train"].max_energy_usage + 10;
+                                hybridEnergy = global.hybrid_train_energy_buffer
+				enableBlueprintFix();
+			end
+		elseif( mod == 'JunkTrain' ) then
+			if( version == '0.0.9' ) then
+				--log_keys( game );
+				--game.prototype
+			end
+		end
+	end	
+	glob_init()
+end)
 
