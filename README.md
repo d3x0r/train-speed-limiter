@@ -133,6 +133,11 @@ is hard coded to a small value, so new trains will be limited in speed, unable t
 Cargo Wagon max speeds are left un modified; this may limit trains more than they should.
 
 ## Changelog
+0.0.702
+   - fix compatibilty with RPS 0.1.4 so I don't REQUIRE update to that.
+   - add optional mod dependancies
+   - increase cargo-wagon and fluid-wagon max_speed
+
 0.0.701
   - rebalance rail modifiers so they're all less than 1
   - rebalance train performance for all rails being a penalty
