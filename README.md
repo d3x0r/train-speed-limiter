@@ -13,7 +13,7 @@ Limit trains based on track type they are on.  This is the table of modifiers us
 |:---|:---:|:---:|:---:|:---:|
 | Multiplier | 0.995  | 0.9925 | 0.989 | 0.9965 |
 | Percentage | -0.5%   | -0.75% | -1.1% | -0.35% |
-| Max Speed(unused?)  | 95  | 280  | 360  | 720  |
+| Max Speed(unused?)  | 360 | 280  | 95  | 720  |
 
 ## Standard Diesel Locomotive Trains
 ### Without modification
@@ -71,7 +71,7 @@ Limit trains based on track type they are on.  This is the table of modifiers us
 
 |Track Type | Electricity |
 |:------|:------:|
-|Scrap    | 146 |
+|Scrap    | N/A |
 |Water    | 293 |
 |Standard | 280 |  * only standard rails are modified with electric power
 |Cemeent  | 324 |
