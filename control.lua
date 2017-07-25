@@ -786,7 +786,7 @@ end
 
 
 script.on_init(function()
-	log( "ON INIT" );
+	--log( "ON INIT" );
 	glob_init()
 end)
 
@@ -794,7 +794,7 @@ script.on_load(function()
 	-- game is not available.
 	-- called when save is reloaded.
 
-	log( "ON LOAD" );
+	--log( "ON LOAD" );
 	--if game then log( "HAVE GAME" ) else log( "NO GAME" ) end
 	setupTypes();
 	hybridEnergy = global.hybrid_train_energy_buffer
@@ -803,14 +803,14 @@ end)
 
 
 script.on_configuration_changed( function()
-	log( "CONFIGURATION CHANGED" );
+	--log( "CONFIGURATION CHANGED" );
 	local mods = game.active_mods;
 	for mod,version in pairs(mods) do
 		log( "Mod:"..mod.." "..version )
 		if( mod == 'RailPowerSystem' ) then
 			--if( version == '0.1.4' ) then
 				enableHybridTick = true;
-				log( "RAIL SYSTEM UPGRADE")
+				--log( "RAIL SYSTEM UPGRADE")
                                 global.hybrid_train_energy_buffer = game.entity_prototypes["hybrid-train"].max_energy_usage + 10;
                                 hybridEnergy = global.hybrid_train_energy_buffer
 				enableBlueprintFix();
