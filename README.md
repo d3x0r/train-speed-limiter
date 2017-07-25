@@ -7,7 +7,12 @@
 [Forum thread](https://forums.factorio.com/viewtopic.php?f=91&t=51104)
 
 
-Limit trains based on track type they are on.  This is the table of modifiers used.
+Modifies train speeds based on track type used.  Extends JunkRails, Bio Industries and RailPowerSystem rails.
+
+Modifies Standard locomotive(base), Junk Train(ScrapRails), Hybrid Train(RailPowerSystem), Nuclear locomotive, Angel's Petrochem train, FARL train(FARL), Electric Train locomotives, Fusion Locomotive, Yuoki Trains.
+
+
+This is the table of modifiers used.
 
 |   | Standard Rail | Water Crossing Rail | Scrap Rail | Concrete Rail |
 |:---|:---:|:---:|:---:|:---:|
