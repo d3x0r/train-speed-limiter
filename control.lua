@@ -207,7 +207,7 @@ end
 local function loadEngines( i, train )
 	local j;
 
-				log( "Setup hybrid engines" );
+				--log( "Setup hybrid engines" );
 			--if enableHybridTick then
 				local movers = train.locomotives.front_movers;
 				local added = false;
@@ -215,7 +215,7 @@ local function loadEngines( i, train )
 				local loco = {};
 				--log_keys( hybridLocos )
 				for j=1,#movers do
-					log( "FMover:"..movers[j].name );
+					--log( "FMover:"..movers[j].name );
 					if( movers[j].name == 'hybrid-train' ) then
 						if not added then
 							hybridLocos[i] = { train=train, engines=engines};
@@ -226,7 +226,7 @@ local function loadEngines( i, train )
 				end
 				local movers = train.locomotives.back_movers;
 				for j=1,#movers do
-					log( "BMover:"..movers[j].name );
+					--log( "BMover:"..movers[j].name );
 					if( movers[j].name == 'hybrid-engine' ) then
 						if not added then
 							hybridLocos[i] = { train=train, engines=engines};
@@ -402,15 +402,26 @@ local function limitTrain( ticks, index, train )
 					end
 				end--]]
 				--log( "speed input is part of last speed?".. lowPrec( lrs/speed ) .. " : ".. lowPrec( speed ) .. " > ".. lowPrec( lrs ).. " ... ".. lowPrec( speed/lrs ) );
-				if( speed > lrs ) then 
+				--log( "speed input is part of last speed?".. tostring(_lastRail.slowing).. "  ".. lowPrec( speed/lrs ) .. "     ".. lowerPrec(speed/kpt) );
+				if( (speed ) > lrs ) then 
 					--log( "(ST)update train speed on:" .. tt.name .. " by ".. tt.q .. " from ".. lowPrec(train.speed) .. "("..lowerPrec(train.speed/kpt)..")" );
-					speed = speed * (tt.q*ticks);
+					speed = speed * (tt.q);
+					if( speed/lrs < 1.001 ) then
+						--log( "RESET SLOWING" );
+						_lastRail.slowing = false;
+					end
 				else
+					if( _lastRail.slowing and (speed/lrs) > 0.994 ) then
+						speed = speed * (tt.q) * 0.95;
+					else
+						--log( "RESET SLOWING" );
+						_lastRail.slowing = false;
+					end
 					--log( "SLOWING" )
 				end
 				if( speed > tt.max ) then
 					--log( "(ST)Overspeed" );
-					speed = speed - (( speed-tt.max ) * 0.03 * ticks);
+					speed = speed - (( speed-tt.max ) * 0.1 * ticks);
 					--train.speed = _lastRail.type.max;
 					--log( "to:" .. train.speed );
 				end
@@ -420,7 +431,7 @@ local function limitTrain( ticks, index, train )
 			end
 		end
 	else 
-		lastRail[index] = { rail=frontRail, type = nil, speed = speed }
+		lastRail[index] = { rail=frontRail, slowing = false, type = nil, speed = speed }
 		_lastRail = lastRail[index];
 	end
 			
@@ -464,10 +475,19 @@ local function limitTrain( ticks, index, train )
 				tt = track_types[i];
 				--log( "track type check:"..tt.name..  " == "..frontRail.name );
 				if( tt.name == frontRail.name ) then
-					if _lastRail.type then
+					--[[if _lastRail.type then
 						if( tt.q > _lastRail.type.q ) then
 							--log( "FASTER" );
 							fasterTrack = true;
+						end
+					end ]]
+					if _lastRail.type then
+						if( tt.q < _lastRail.type.q ) then
+							--log( "SET SLOWING" );
+							_lastRail.slowing = true;
+						elseif( tt.q > _lastRail.type.q ) then
+							--log( "RESET SLOWING" );
+							_lastRail.slowing = false;
 						end
 					end
 					_lastRail.type = tt;
@@ -489,17 +509,27 @@ local function limitTrain( ticks, index, train )
 			
 		end--]]
 		--log( "speed input is part of last speed?".. lowPrec( lrs/speed ) .. " : ".. lowPrec( speed ) .. " > ".. lowPrec( lrs ).. " ... ".. lowPrec( speed/lrs ) );
-		if( fasterTrack or speed > lrs ) then --* 0.97
+		--log( "speed input is part of last speed?".. tostring(_lastRail.slowing).. "  ".. lowPrec( speed/lrs ) .. "     ".. lowerPrec(speed/kpt));
+		if( (speed) > lrs ) then --* 0.97
 			--log( "train speed:".. lowPrec(train.speed).."("..lowerPrec(train.speed/kpt)..")".. "  something:".. tt.max.. " Q:"..tt.q );
-			speed = speed * (tt.q*ticks);
-			--log( "update train speed on:" .. tt.name .. " by ".. tt.q .. " from ".. lowPrec(train.speed).."("..lowerPrec(train.speed/kpt)..")" .. " to ".. lowPrec(speed).."("..lowerPrec(speed/kpt)..")" );
+			speed = speed * (tt.q);           
+			--log( "After modification...".. lowPrec( speed/lrs ) );
+			if( speed/lrs < tt.q + 0.000001 ) then
+				--log( "RESET SLOWING".. speed/lrs );
+				_lastRail.slowing = false;
+			end
+			--log( "update train speed on:" .. " by ".. tt.q .. " from ".. lowPrec(train.speed).."("..lowerPrec(train.speed/kpt)..")" .. " to ".. lowPrec(speed).."("..lowerPrec(speed/kpt)..")" );
 			--log( "set train speed" .. train.id .. " to "..speed.. "ticks:" ..ticks );
 		else
+			if( _lastRail.slowing and (speed/lrs) > 0.994 ) then
+				speed = speed * (tt.q);
+				--log( "After modification...".. lowPrec( speed/lrs ) );
+			end
 			--log( "SLOWER:".. train.speed.. "something:".. tt.max.. " Q:"..tt.q );
 		end
 		if( speed > tt.max ) then
 			--log( "OverSpeed!" );
-			speed = speed - (( speed-tt.max ) * 0.03 * ticks);
+			speed = speed - (( speed-tt.max ) * 0.1 * ticks);
 		end
 		--log( "update train speed from:"..lowPrec(train.speed) .. "("..lowerPrec(train.speed/kpt)..")".. " last:" .. lowPrec(lrs).."("..lowerPrec(lrs/kpt)..")" .. " to ".. lowPrec(speed) .. "("..lowerPrec(speed/kpt)..")".. " + "..lowPrec(speed/lrs) .. " + "..lowPrec(speed/train.speed) );
 		train.speed = speed;

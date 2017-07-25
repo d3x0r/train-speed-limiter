@@ -125,8 +125,19 @@ Rail Power System mod requires updates to allow me to connect to cement and brid
 powered rail to cement or bridge rails and use that to connect a rail power pole.  Also, the internal max power transfer for hybrid trains
 is hard coded to a small value, so new trains will be limited in speed, unable to draw the full 1500kW power from the rails.
 
+Cargo Wagon max speeds are left un modified; this may limit trains more than they should.
 
 ## Changelog
+0.0.701
+  - rebalance rail modifiers so they're all less than 1
+  - rebalance train performance for all rails being a penalty
+  - rebalance fuel type bonuses to acheive effective max speed bonus
+  - add FARL compatibility modification (untested balance)
+  - add Electric Trains compatibility (untested balance)
+  - add Fusion Locomotive compatibilty (untested balance)
+  - add Yuoki Industries - Railroads compatibility (untested balance)
+  - add YIR - Uranium Power Trains compatiblity (untested balance)
+  - add YIR - Youki Industry Railroads compatiblity (untested balance)
 
 0.0.5  
   - fix bridge power rails. 

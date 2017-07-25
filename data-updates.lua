@@ -92,10 +92,238 @@ if data.raw.locomotive["hybrid-train"] then
 	--reversing_power_modifier
 	data.raw.locomotive["hybrid-train"].max_speed = 4.0; -- 1.5 default
 	data.raw.locomotive["hybrid-train"].air_resistance = 0.012; -- 0.0075 default
-	data.raw["electric-energy-interface"]["rail-accu"].energy_source.buffer_capacity="25kJ";
+	data.raw["electric-energy-interface"]["rail-accu"].energy_source.buffer_capacity="30kJ";
 
 end
 
+if data.raw.locomotive["petro-locomotive-1"] then
+	-- weight = 3000
+	data.raw.locomotive["petro-locomotive-1"].max_power = "1400kW";  -- 800kW default
+	data.raw.locomotive["petro-locomotive-1"].max_speed = 4.0;  -- default 1.2
+	data.raw.locomotive["petro-locomotive-1"].air_resistance = 0.008;  -- default 0.0075
+	data.raw.locomotive["petro-locomotive-1"].burner.effectivity = 1.5;
+end
+
+if data.raw.locomotive["electric-locomotive"] then
+	-- weight = 2000
+	data.raw.locomotive["electric-locomotive"].max_power = "1200kW";  -- 600kW default
+	data.raw.locomotive["electric-locomotive"].max_speed = 4.0;  -- default 1.2
+	data.raw.locomotive["electric-locomotive"].air_resistance = 0.008;  -- default 0.0075
+	data.raw.locomotive["electric-locomotive"].burner.effectivity = 1.5;
+end
+
+if data.raw.locomotive["electric-locomotive-mk2"] then
+	-- weight = 2000
+	data.raw.locomotive["electric-locomotive-mk2"].max_power = "1500kW";  -- 900kW default
+	data.raw.locomotive["electric-locomotive-mk2"].max_speed = 4.0;  -- default 1.5
+	data.raw.locomotive["electric-locomotive-mk2"].air_resistance = 0.0072;  -- default 0.005625
+	data.raw.locomotive["electric-locomotive-mk2"].burner.effectivity = 1.5;
+end
+
+if data.raw.locomotive["electric-locomotive-mk3"] then
+	-- weight = 2000
+	data.raw.locomotive["electric-locomotive-mk3"].max_power = "1800kW";  -- 1200kW default
+	data.raw.locomotive["electric-locomotive-mk3"].max_speed = 4.0;  -- default 2
+	data.raw.locomotive["electric-locomotive-mk3"].air_resistance = 0.0064;  -- default 0.00375
+	data.raw.locomotive["electric-locomotive-mk3"].burner.effectivity = 1.5;
+end
+
+if data.raw.locomotive["fusion-locomotive"] then
+	-- weight = 2000
+	data.raw.locomotive["fusion-locomotive"].max_power = "1800kW";  -- 1200kW default
+	data.raw.locomotive["fusion-locomotive"].max_speed = 4.0;  -- default 1.4
+	data.raw.locomotive["fusion-locomotive"].air_resistance = 0.010;  -- default 0.0075
+	data.raw.locomotive["fusion-locomotive"].burner.effectivity = 1.5;
+end
+
+if data.raw.locomotive["farl"] then
+	-- weight = 2000
+	-- lower power; it had a default lower max speed...
+	data.raw.locomotive["farl"].max_power = "900kW";  -- 600kW default
+	data.raw.locomotive["farl"].max_speed = 4.0;  -- default 0.8
+	data.raw.locomotive["farl"].air_resistance = 0.010;  -- default 0.0075
+	--data.raw.locomotive["farl"].burner.effectivity = 1.5;
+end
+
+if data.raw.locomotive["y_loco_emd1500blue"] then
+	-- weight = 1500
+	-- lower power; it had a default lower max speed...
+	data.raw.locomotive["y_loco_emd1500blue"].max_power = "900kW";  -- 800kW default
+	data.raw.locomotive["y_loco_emd1500blue"].max_speed = 4.0;  -- default 0.5
+	data.raw.locomotive["y_loco_emd1500blue"].air_resistance = 0.008;  -- default 0.0035
+	--data.raw.locomotive["y_loco_emd1500blue"].burner.effectivity = 1.5;
+end
+
+if data.raw.locomotive["y_loco_emd1500blue_v2"] then
+	-- weight = 1400
+	-- lower power; it had a default lower max speed...
+	data.raw.locomotive["y_loco_emd1500blue_v2"].max_power = "1000kW";  -- 900kW default
+	data.raw.locomotive["y_loco_emd1500blue_v2"].max_speed = 4.0;  -- default 0.6
+	data.raw.locomotive["y_loco_emd1500blue_v2"].air_resistance = 0.008;  -- default 0.0035
+	--data.raw.locomotive["y_loco_emd1500blue_v2"].burner.effectivity = 1.5;
+end
+
+if data.raw.locomotive["y_loco_emd1500black"] then
+	-- weight = 1400
+	-- lower power; it had a default lower max speed...
+	data.raw.locomotive["y_loco_emd1500black"].max_power = "900kW";  -- 800kW default
+	data.raw.locomotive["y_loco_emd1500black"].max_speed = 4.0;  -- default 0.5
+	data.raw.locomotive["y_loco_emd1500black"].air_resistance = 0.008;  -- default 0.0035
+	--data.raw.locomotive["farl"].burner.effectivity = 1.5;
+end
+
+if data.raw.locomotive["y_loco_emd1500black_v2"] then
+	-- weight = 1500
+	-- lower power; it had a default lower max speed...
+	data.raw.locomotive["y_loco_emd1500black_v2"].max_power = "1000kW";  -- 900kW default
+	data.raw.locomotive["y_loco_emd1500black_v2"].max_speed = 4.0;  -- default 0.6
+	data.raw.locomotive["y_loco_emd1500black_v2"].air_resistance = 0.008;  -- default 0.0035
+	--data.raw.locomotive["y_loco_emd1500black_v2"].burner.effectivity = 1.5;
+end
+
+if data.raw.locomotive["yir_loco_fesw_op"] then
+	-- weight = 1100
+	-- lower power; it had a default lower max speed...
+	data.raw.locomotive["yir_loco_fesw_op"].max_power = "800kW";  -- 450kW default
+	data.raw.locomotive["yir_loco_fesw_op"].max_speed = 4.0;  -- default 0.6
+	data.raw.locomotive["yir_loco_fesw_op"].air_resistance = 0.008;  -- default 0.003
+	--data.raw.locomotive["yir_loco_fesw_op"].burner.effectivity = 1.5;
+end
+
+if data.raw.locomotive["yir_loco_fut_red"] then
+	-- weight = 6000
+	-- lower power; it had a default lower max speed...
+	data.raw.locomotive["yir_loco_fut_red"].max_power = "3600kW";  -- 3000kW default
+	data.raw.locomotive["yir_loco_fut_red"].max_speed = 4.0;  -- default 2.5
+	data.raw.locomotive["yir_loco_fut_red"].air_resistance = 0.014;  -- default 0.00275
+	--data.raw.locomotive["yir_loco_fut_red"].burner.effectivity = 1.5;
+end
+
+if data.raw.locomotive["yir_loco_del_KR"] then
+	-- weight = 3000
+	-- lower power; it had a default lower max speed...
+	data.raw.locomotive["yir_loco_del_KR"].max_power = "3000kW";  -- 2700kW default
+	data.raw.locomotive["yir_loco_del_KR"].max_speed = 4.0;  -- default 2.5
+	data.raw.locomotive["yir_loco_del_KR"].air_resistance = 0.014;  -- default 0.00275
+	--data.raw.locomotive["yir_loco_del_KR"].burner.effectivity = 1.5;
+end
+
+if data.raw.locomotive["y_loco_emd3000_white"] then
+	-- weight = 2200
+	-- lower power; it had a default lower max speed...
+	data.raw.locomotive["y_loco_emd3000_white"].max_power = "1800kW";  -- 1200kW default
+	data.raw.locomotive["y_loco_emd3000_white"].max_speed = 4.0;  -- default 0.9
+	data.raw.locomotive["y_loco_emd3000_white"].air_resistance = 0.014;  -- default 0.003
+	--data.raw.locomotive["y_loco_emd3000_white"].burner.effectivity = 1.5;
+end
+
+if data.raw.locomotive["yir_loco_del_bluegray"] then
+	-- weight = 2000
+	-- lower power; it had a default lower max speed...
+	data.raw.locomotive["yir_loco_del_bluegray"].max_power = "2000kW";  -- 1300kW default
+	data.raw.locomotive["yir_loco_del_bluegray"].max_speed = 4.0;  -- default 0.8
+	data.raw.locomotive["yir_loco_del_bluegray"].air_resistance = 0.016;  -- default 0.00275
+	--data.raw.locomotive["yir_loco_del_bluegray"].burner.effectivity = 1.5;
+end
+
+if data.raw.locomotive["yir_loco_del_mk1400"] then
+	-- weight = 1800
+	-- lower power; it had a default lower max speed...
+	data.raw.locomotive["yir_loco_del_mk1400"].max_power = "2300kW";  -- 1400kW default
+	data.raw.locomotive["yir_loco_del_mk1400"].max_speed = 4.0;  -- default 0.75
+	data.raw.locomotive["yir_loco_del_mk1400"].air_resistance = 0.018;  -- default 0.00275
+	--data.raw.locomotive["yir_loco_del_bluegray"].burner.effectivity = 1.5;
+end
+
+if data.raw.locomotive["y_loco_fs_steam_green"] then
+	-- weight = 2000
+	-- lower power; it had a default lower max speed...
+	data.raw.locomotive["y_loco_fs_steam_green"].max_power = "1700kW";  -- 1000kW default
+	data.raw.locomotive["y_loco_fs_steam_green"].max_speed = 4.0;  -- default 0.9
+	data.raw.locomotive["y_loco_fs_steam_green"].air_resistance = 0.012;  -- default 0.003
+	--data.raw.locomotive["y_loco_fs_steam_green"].burner.effectivity = 1.5;
+end
+
+if data.raw.locomotive["yir_loco_sel_blue"] then
+	-- weight = 1900
+	-- lower power; it had a default lower max speed...
+	data.raw.locomotive["yir_loco_sel_blue"].max_power = "1800kW";  -- 1100kW default
+	data.raw.locomotive["yir_loco_sel_blue"].max_speed = 4.0;  -- default 0.9
+	data.raw.locomotive["yir_loco_sel_blue"].air_resistance = 0.012;  -- default 0.002
+	--data.raw.locomotive["yir_loco_sel_blue"].burner.effectivity = 1.5;
+end
+
+if data.raw.locomotive["y_loco_steam_wt450"] then
+	-- weight = 1400
+	-- lower power; it had a default lower max speed...
+	data.raw.locomotive["y_loco_steam_wt450"].max_power = "900kW";  -- 450kW default
+	data.raw.locomotive["y_loco_steam_wt450"].max_speed = 4.0;  -- default 0.625
+	data.raw.locomotive["y_loco_steam_wt450"].air_resistance = 0.010;  -- default 0.003
+	--data.raw.locomotive["y_loco_steam_wt450"].burner.effectivity = 1.5;
+end
+
+if data.raw.locomotive["y_loco_desw"] then
+	-- weight = 1400
+	-- lower power; it had a default lower max speed...
+	data.raw.locomotive["y_loco_desw"].max_power = "900kW";  -- 400kW default
+	data.raw.locomotive["y_loco_desw"].max_speed = 4.0;  -- default 0.4
+	data.raw.locomotive["y_loco_desw"].air_resistance = 0.014;  -- default 0.005
+	--data.raw.locomotive["y_loco_desw"].burner.effectivity = 1.5;
+end
+
+if data.raw.locomotive["y_loco_desw_orange"] then
+	-- weight = 1600
+	-- lower power; it had a default lower max speed...
+	data.raw.locomotive["y_loco_desw_orange"].max_power = "900kW";  -- 500kW default
+	data.raw.locomotive["y_loco_desw_orange"].max_speed = 4.0;  -- default 0.375
+	data.raw.locomotive["y_loco_desw_orange"].air_resistance = 0.016;  -- default 0.004
+	--data.raw.locomotive["y_loco_desw_orange"].burner.effectivity = 1.5;
+end
+
+if data.raw.locomotive["y_loco_desw_blue"] then
+	-- weight = 1800
+	-- lower power; it had a default lower max speed...
+	data.raw.locomotive["y_loco_desw_blue"].max_power = "900kW";  -- 600kW default
+	data.raw.locomotive["y_loco_desw_blue"].max_speed = 4.0;  -- default 0.35
+	data.raw.locomotive["y_loco_desw_blue"].air_resistance = 0.018;  -- default 0.004
+	--data.raw.locomotive["y_loco_desw_blue"].burner.effectivity = 1.5;
+end
+
+if data.raw.locomotive["y_loco_ses_std"] then
+	-- weight = 1100
+	-- lower power; it had a default lower max speed...
+	data.raw.locomotive["y_loco_ses_std"].max_power = "600kW";  -- 300kW default
+	data.raw.locomotive["y_loco_ses_std"].max_speed = 4.0;  -- default 0.4
+	data.raw.locomotive["y_loco_ses_std"].air_resistance = 0.015;  -- default 0.005
+	--data.raw.locomotive["y_loco_ses_std"].burner.effectivity = 1.5;
+end
+
+if data.raw.locomotive["y_loco_ses_red"] then
+	-- weight = 900
+	-- lower power; it had a default lower max speed...
+	data.raw.locomotive["y_loco_ses_red"].max_power = "600kW";  -- 300kW default
+	data.raw.locomotive["y_loco_ses_red"].max_speed = 4.0;  -- default 1.4
+	data.raw.locomotive["y_loco_ses_red"].air_resistance = 0.008;  -- default 0.002
+	--data.raw.locomotive["y_loco_ses_red"].burner.effectivity = 1.5;
+end
+
+if data.raw.locomotive["yir_atom_header"] then
+	-- weight = 2000
+	-- lower power; it had a default lower max speed...
+	data.raw.locomotive["yir_atom_header"].max_power = "3200kW";  -- 2500kW default
+	data.raw.locomotive["yir_atom_header"].max_speed = 4.0;  -- default 1
+	data.raw.locomotive["yir_atom_header"].air_resistance = 0.012;  -- default 0.00225
+	--data.raw.locomotive["yir_atom_header"].burner.effectivity = 1.5;
+end
+
+if data.raw.locomotive["yir_atom_mitte"] then
+	-- weight = 5000
+	-- lower power; it had a default lower max speed...
+	data.raw.locomotive["yir_atom_mitte"].max_power = "7500kW";  -- 5000kW default
+	data.raw.locomotive["yir_atom_mitte"].max_speed = 4.0;  -- default 1
+	data.raw.locomotive["yir_atom_mitte"].air_resistance = 0.011;  -- default 0.00225
+	--data.raw.locomotive["yir_atom_mitte"].burner.effectivity = 1.5;
+end
 
 
 if data.raw.locomotive["nuclear-locomotive"] then
