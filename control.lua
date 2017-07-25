@@ -40,8 +40,6 @@ require( "libs.railPowerLib" )
 --    but could go much faster. I seem to recall a 45 mile run before 1900 in which a locomotive pulled a 
 --   train at better than 65MPH... (Stanley Steamer cars were known to exceed 75MPH).
 
-local continuous_application = false;
-
 local kpt = ( 1000/3600 ) /60; -- km per tick
 -- 0.00462962962962962962962962962963
 
@@ -392,13 +390,7 @@ local function limitTrain( ticks, index, train )
 			_lastRail.speed = speed;
 			local tt = _lastRail.type;
 			if tt then
-
-				local scalar = 1--tt.q;
-				--if( tt.q < 1 ) then
-				--	scalar = 1;
-				--end
-
-				[[if speed < (lrs ) then -- * 0.97
+				--[[if speed < (lrs ) then -- * 0.97
 					if flyingTextShow <= 0 then
 					         game.players[1].print( "Cur: "..lowPrec(speed) .. "("..lowerPrec(speed/kpt)..") Prior:"..lowPrec(lrs).. "("..lowerPrec(lrs/kpt)..") delta:"..lowPrec(speed-lrs).."("..lowerPrec((speed-lrs)/kpt)..")" )
 					         --game.surfaces[1].create_entity{name = "flying-text", position = {train.locomotives.front_movers[1].position.x+1,train.locomotives.front_movers[1].position.y-2}, text = {"Cur: "..speed .. "("..speed/kpt..") Prior:"..lrs.. "("..lrs/kpt..") delta:"..(speed-lrs).."("..(speed-lrs)/kpt..")" }, color = {r=1,g=1,b=1}}
@@ -408,9 +400,9 @@ local function limitTrain( ticks, index, train )
 							flyingTextShow = flyingTextShow - 1; 
 						end
 					end
-				end]]
+				end--]]
 				--log( "speed input is part of last speed?".. lowPrec( lrs/speed ) .. " : ".. lowPrec( speed ) .. " > ".. lowPrec( lrs ).. " ... ".. lowPrec( speed/lrs ) );
-				if( continuous_application or speed/lrs >= (scalar ) ) then -- * 0.97
+				if( speed > lrs ) then 
 					--log( "(ST)update train speed on:" .. tt.name .. " by ".. tt.q .. " from ".. lowPrec(train.speed) .. "("..lowerPrec(train.speed/kpt)..")" );
 					speed = speed * (tt.q*ticks);
 				else
@@ -483,11 +475,7 @@ local function limitTrain( ticks, index, train )
 				end
 			end
 
-		local scalar = 1--tt.q;
-		--if( tt.q < 1 ) then
-		--	scalar = 1;
-		--end
-		[[if( speed < (lrs) ) then --* 0.97
+		--[[if( speed < (lrs) ) then --* 0.97
 			if flyingTextShow <= 0 then
 			         game.players[1].print( "Cur: "..lowPrec(speed) .. "("..lowerPrec(speed/kpt)..") Prior:"..lowPrec(lrs).. "("..lowerPrec(lrs/kpt)..") delta:"..lowPrec(speed-lrs).."("..lowerPrec((speed-lrs)/kpt)..")" )
 				flyingTextShow = 60;
@@ -499,16 +487,15 @@ local function limitTrain( ticks, index, train )
 
 			log( "SLOWER:".. train.speed.. "something:".. tt.max.. " Q:"..tt.q );
 			
-		end]]
+		end--]]
 		--log( "speed input is part of last speed?".. lowPrec( lrs/speed ) .. " : ".. lowPrec( speed ) .. " > ".. lowPrec( lrs ).. " ... ".. lowPrec( speed/lrs ) );
-		if( continuous_application or fasterTrack or speed/lrs >= ( scalar ) ) then --* 0.97
+		if( fasterTrack or speed > lrs ) then --* 0.97
 			--log( "train speed:".. lowPrec(train.speed).."("..lowerPrec(train.speed/kpt)..")".. "  something:".. tt.max.. " Q:"..tt.q );
 			speed = speed * (tt.q*ticks);
 			--log( "update train speed on:" .. tt.name .. " by ".. tt.q .. " from ".. lowPrec(train.speed).."("..lowerPrec(train.speed/kpt)..")" .. " to ".. lowPrec(speed).."("..lowerPrec(speed/kpt)..")" );
 			--log( "set train speed" .. train.id .. " to "..speed.. "ticks:" ..ticks );
 		else
 			--log( "SLOWER:".. train.speed.. "something:".. tt.max.. " Q:"..tt.q );
-			
 		end
 		if( speed > tt.max ) then
 			--log( "OverSpeed!" );
