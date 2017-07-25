@@ -45,7 +45,11 @@ end
 data.raw.locomotive.locomotive.max_power = "1200kW";  -- 600kW default
 data.raw.locomotive.locomotive.max_speed = 4.0;  -- default 1.2
 data.raw.locomotive.locomotive.air_resistance = 0.008;  -- default 0.0075
-data.raw.locomotive.locomotive.burner.effectivity = 1.5;
+data.raw.locomotive.locomotive.burner.effectivity = 2;
+
+-- data.raw["cargo-wagon"]["cargo-wagon"].air_resistance = 0.001;  -- default 0.01
+data.raw["cargo-wagon"]["cargo-wagon"].max_speed = 4; --1.75; -- 378 -- default 1.5 (324)
+data.raw["fluid-wagon"]["fluid-wagon"].max_speed = 4; --1.75; -- 378 -- default 1.5 (324)
 
 -- solid
 --   2.905 Script data-final-fixes.lua:4: .     fuel_acceleration_multiplier=1.2
@@ -74,7 +78,7 @@ if data.raw.locomotive["JunkTrain"] then
    -- 80 & 99.4
 	-- 64kmh 1.0 track
         data.raw.locomotive.JunkTrain.max_power = "750kW"
-	data.raw.locomotive.JunkTrain.max_speed = 1.0;  -- default 0.3
+	data.raw.locomotive.JunkTrain.max_speed = 1.0;  -- (216) default 0.3 (64)
 	data.raw.locomotive.JunkTrain.air_resistance = 0.05;  -- default 0.03
 	data.raw.locomotive.JunkTrain.burner.effectivity = 1.50
 
