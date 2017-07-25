@@ -11,9 +11,9 @@ Limit trains based on track type they are on.  This is the table of modifiers us
 
 |   | Standard Rail | Water Crossing Rail | Scrap Rail | Concrete Rail |
 |:---|:---:|:---:|:---:|:---:|
-| Multiplier | 1.0  | 0.9975 | 0.992 | 1.0005 |
-| Percentage | 0%   | -0.25% | -0.8% | +0.05% |
-| Max Speed(unused?)  | 80  | 280  | 360  | 720  |
+| Multiplier | 0.995  | 0.9925 | 0.989 | 0.9965 |
+| Percentage | -0.5%   | -0.75% | -1.1% | -0.35% |
+| Max Speed(unused?)  | 95  | 280  | 360  | 720  |
 
 ## Standard Diesel Locomotive Trains
 ### Without modification
@@ -24,32 +24,36 @@ Limit trains based on track type they are on.  This is the table of modifiers us
 ### With Mod
 
   - Increase max speed from 259.2 to 863
-  - Increase air resistance from 0.75% to 1.2%
+  - Increase power from 600kW to 1200kW
+  - Increase efficiency from 1.0 to 1.5 
+  - Increase air resistance from 0.75% to 0.8%
 
 | Track Type | Wood/Coal | Solid Fuel | Rocket Fuel |
 |:--------|:------:|:---:|:---:|
-| Scrap | 73 | 88.5 | 134 |
-| Water | 120 | 145.4 | 221.2 |
-| Standard | 169 | 205 |  302-312 |
-| Concrete | 184 | 220 |  340 |
+| Scrap | 110 | 115.7 | 123 |
+| Water | 120? | 145.4? | 221.2? |
+| Standard | 233 | 257.5 |  293.4 |
+| Concrete | 279 | 308 |  352 |
 
 ## Junk Train (Junk Train mod)
 ### without Modification
 | Wood/Coal | Solid Fuel | Rocket Fuel |
 |:------:|:---:|:---:|
-| 31.9 |  | 60.4 |
+| 31.9 |  ?? | 60.4 |
 
 ### With Mod
 
   - Increase max speed from 64.8 to 256.2
-  - Decrease air resistance from 3% to 0.9% (to get back up to normal speed on scrap rail)
+  - Increase power form 300kW to 750kW
+  - Increase air resistance from 3% to 5% (to get back up to normal speed on scrap rail)
+  - Increase burner effectivity from 0.3 to 1.5 ( still burns fuel pretty fast for distance covered)
 
 |Track Type| Wood/Coal | Solid Fuel | Rocket Fuel |
 |:----- |:------:|:---:|:---:|
-| Scrap | 33.2 | 40.8  | 63 |
-| Water | ?? | ?? | ?? |
-| Standard | 80 | 130.7 |  152 |
-| Concrete | ?? | ?? | ?? |
+| Scrap | 33.2 | 36.4  | 41.6 |
+| Water | 40.2 | 44.4 | 50 |
+| Standard | 40.8 | 45 |  51.4 |
+| Concrete | 43.2 | 47.9 | 54.6 |
 
 ## Hybrid Train (Rail Power System mod)
 ### without Modification
@@ -60,17 +64,17 @@ Limit trains based on track type they are on.  This is the table of modifiers us
 ### With Mod
   - Add powered wood bridge rails (if also have Bio Industries for graphics)
   - Add powered concrete rails (if also have Bio Industries for graphics) 
-  - Increase power from 600kW to 1500kW
+  - Increase power from 600kW to 1750kW
   - Increase max speed from 259.2 to 863
-  - Increase air resitance form 0.75% to 2%
-  - Increase rail accumulator storage from 11kJ to 25kJ (to support higher power)
+  - Increase air resitance form 0.75% to 1.2%
+  - Increase rail accumulator storage from 11kJ to 30kJ (to support higher power)
 
 |Track Type | Electricity |
 |:------|:------:|
 |Scrap    | 146 |
-|Water    | 209 |
-|Standard | 261 .9 |  * only standard rails are modified with electric power
-|Cemeent  | 275 |
+|Water    | 293 |
+|Standard | 280 |  * only standard rails are modified with electric power
+|Cemeent  | 324 |
 
 ## Nuclear Locomotive (Nuclear Locomotives Mod)
 ### without Modification
@@ -81,27 +85,38 @@ Limit trains based on track type they are on.  This is the table of modifiers us
 
 ### With Mod
 
-  - Increase power from 1200kW to 1800kW
+  - Increase power from 1200kW to 2400kW
   - Increase max speed from 324 to 863
-  - Increase air resistance from 0.75% to 1.9%
+  - Increase air resistance from 0.75% to 1.0%
 
 
 | Track Type | Uranium |
 |:------|:------:|
-|Scrap    | 127 |
-|Water    | 218 |
-|Standard | 332 |
-|Concrete   | 360-372 |
+|Scrap    | 115 |
+|Water    | 296 |
+|Standard | 284 |
+|Concrete   | 355 |
 
 
 ## Summary of Locomotive Changes
 
-Standard locomotives remain the same.  They have higher speeds in some conditions, but take a long time to get up to speed. 
-Some of the numbers reflect effective max speed and real max speed; depending on the length of rail it may not reach the specified speed.
+Standard locomotives have higher speeds in some conditions, but take a long time to get up to speed. 
 
 Hybrid and Nuclear locomotives, increased acceleration, so they get up to higher speeds faster at a slight increase in power requirement.
 
 Junk train locomotive had to have lowered air resistance so it could approach the same speeds on junk rails.
+
+## Fuel Modifications
+
+Original trains are mostly limited by their max_speed setting; and therefore the fuel modifier of top_speed_multiplier affects
+their top end speed.  Solid fuel has a top speed multiplier of 1.05, rocket fuel has a top speed multiplier of 1.15.  Becuase train
+max speed is now basically uncapped, this multiplier needs to be expressed as an acceleration modifier instead.
+
+  * Solid Fuel
+    * Decrease acceleration modifer from 1.2 to 1.1
+
+  * Rocket Fuel
+    * Decrease acceleration modifier form 1.8 to 1.25
 
 
 ## Existing Issues
