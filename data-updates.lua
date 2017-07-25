@@ -80,7 +80,7 @@ if data.raw.locomotive["JunkTrain"] then
         data.raw.locomotive.JunkTrain.max_power = "750kW"
 	data.raw.locomotive.JunkTrain.max_speed = 1.0;  -- (216) default 0.3 (64)
 	data.raw.locomotive.JunkTrain.air_resistance = 0.05;  -- default 0.03
-	data.raw.locomotive.JunkTrain.burner.effectivity = 1.50
+	data.raw.locomotive.JunkTrain.burner.effectivity = 2.16667
 
 	data.raw["rail-planner"]["scrap-rail"].icon = "__train-speed-limiter__/graphics/icons/scrap-rail.png"
 
@@ -96,6 +96,7 @@ if data.raw.locomotive["hybrid-train"] then
 	--reversing_power_modifier
 	data.raw.locomotive["hybrid-train"].max_speed = 4.0; -- 1.5 default
 	data.raw.locomotive["hybrid-train"].air_resistance = 0.012; -- 0.0075 default
+	data.raw.locomotive["hybrid-train"].burner.effectivity = 2.9167;
 	data.raw["electric-energy-interface"]["rail-accu"].energy_source.buffer_capacity="30kJ";
 
 end
@@ -110,22 +111,25 @@ end
 
 if data.raw.locomotive["electric-locomotive"] then
 	-- weight = 2000
+      -- original max 259.2 
 	data.raw.locomotive["electric-locomotive"].max_power = "1200kW";  -- 600kW default
 	data.raw.locomotive["electric-locomotive"].max_speed = 4.0;  -- default 1.2
 	data.raw.locomotive["electric-locomotive"].air_resistance = 0.008;  -- default 0.0075
-	data.raw.locomotive["electric-locomotive"].burner.effectivity = 1.5;
+	data.raw.locomotive["electric-locomotive"].burner.effectivity = 2;
 end
 
 if data.raw.locomotive["electric-locomotive-mk2"] then
 	-- weight = 2000
+      -- original max 324
 	data.raw.locomotive["electric-locomotive-mk2"].max_power = "1500kW";  -- 900kW default
 	data.raw.locomotive["electric-locomotive-mk2"].max_speed = 4.0;  -- default 1.5
 	data.raw.locomotive["electric-locomotive-mk2"].air_resistance = 0.0072;  -- default 0.005625
-	data.raw.locomotive["electric-locomotive-mk2"].burner.effectivity = 1.5;
+	data.raw.locomotive["electric-locomotive-mk2"].burner.effectivity = 1.667;
 end
 
 if data.raw.locomotive["electric-locomotive-mk3"] then
 	-- weight = 2000
+      -- original max 432
 	data.raw.locomotive["electric-locomotive-mk3"].max_power = "1800kW";  -- 1200kW default
 	data.raw.locomotive["electric-locomotive-mk3"].max_speed = 4.0;  -- default 2
 	data.raw.locomotive["electric-locomotive-mk3"].air_resistance = 0.0064;  -- default 0.00375

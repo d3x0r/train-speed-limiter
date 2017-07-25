@@ -7,6 +7,18 @@
   "contact": "",
   "homepage": "https://forums.factorio.com/viewtopic.php?f=91&t=51104",
   "description": "Applies speed bonuses/penalties to train speeds based on track type.",
-  "dependencies": ["base >= 0.12.35", "? JunkTrain", "? Bio_Industries", "? BridgeRailway", "? RailPowerSystem" ]
+  "dependencies": ["base >= 0.12.35"
+		, "? JunkTrain"
+	, "? Bio_Industries"
+	, "? BridgeRailway"
+	, "? RailPowerSystem >= 0.1.4" 
+	, "? Nuclear Locomotives"
+	, "? angelsaddons-petrotrain" 
+        , "? ElectricTrain"
+        , "? FusionTrain" 
+	, "? z_yira_yuokirails"
+	, "? yi_railway"
+        , "? z_yira_UP"
+	]
 
 }
