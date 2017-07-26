@@ -108,8 +108,8 @@ local function setupTypes()
 				track_types[#track_types+1] = { name = "straight-scrap-rail", max=(kpt)*95, q = scrapPenalty }
 			elseif type == "bi-bridge" then
 				-- bio industries woor bridge
-				track_types[#track_types+1] = { name = "curved-rail-wood-bridge", max=(kpt)*280, q = waterPenalty }
-				track_types[#track_types+1] = { name = "straight-rail-wood-bridge", max=(kpt)*280, q = waterPenalty }
+				track_types[#track_types+1] = { name = "bi-curved-rail-wood-bridge", max=(kpt)*280, q = waterPenalty }
+				track_types[#track_types+1] = { name = "bi-straight-rail-wood-bridge", max=(kpt)*280, q = waterPenalty }
 
 			elseif type == "bi-wood" then
 				track_types[#track_types+1] = { name = "bi-curved-rail-wood", max=(kpt)*360, q = standardBonus }
@@ -628,11 +628,13 @@ script.on_event(defines.events.on_train_created, function(event)
 		--log( "check total: ".. #global.trains );
 		for i = 1, #global.trains do
 			--log( "check slot: ".. i );
-			if not global.trains[i].valid then
-				--log( " clear slot:"..i );
-				global.trains[i] = nil;
-				if enableHybridTick then
-					hybridLocos[i] = nil;
+			if global.trains[i] then
+				if not global.trains[i].valid then
+					--log( " clear slot:"..i );
+					global.trains[i] = nil;
+					if enableHybridTick then
+						hybridLocos[i] = nil;
+					end
 				end
 			end
 		end

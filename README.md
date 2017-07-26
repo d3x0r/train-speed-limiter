@@ -9,7 +9,7 @@
 
 Modifies train speeds based on track type used.  Extends JunkRails, Bio Industries and RailPowerSystem rails.
 
-Modifies Standard locomotive(base), Junk Train(ScrapRails), Hybrid Train(RailPowerSystem), Nuclear locomotive, Angel's Petrochem train, FARL train(FARL), Electric Train locomotives, Fusion Locomotive, Yuoki Trains.
+Modifies Standard locomotive(base), Junk Train(ScrapRails), Hybrid Train(RailPowerSystem), Nuclear locomotive, Angel's Petrochem train, FARL train(FARL), Electric Train locomotives, More Trains, Fusion Locomotive, Yuoki Trains.
 
 
 This is the table of modifiers used.
@@ -81,6 +81,70 @@ This is the table of modifiers used.
 |Standard | 280 |  * only standard rails are modified with electric power
 |Cemeent  | 324 |
 
+
+
+## Heavy Locomotive (More Trains Mod)
+### without modification
+| Wood/Coal | Solid Fuel | Rocket Fuel |
+|:------:|:---:|:---:|
+| 205 |  215.25 | 235.7 |
+
+### With Mod
+
+  - Increase max speed from 205 to 863
+  - Increase power form 1100kW to 2200kW
+  - Increase air resistance from 0.75% to 3% 
+  - Increase burner effectivity from 1 to 2 (keeps same output 1.1MW power)
+
+|Track Type| Wood/Coal | Solid Fuel | Rocket Fuel |
+|:----- |:------:|:---:|:---:|
+| Scrap | ? | ?  | ? |
+| Water | 156.6 | 172.5 | 196.4 |
+| Standard | 180.1 | 198 |  225.9 |
+| Concrete | 197.7 | 218.1 | 248.2 |
+
+## Express Locomotive (More Trains Mod)
+### without modification
+| Wood/Coal | Solid Fuel | Rocket Fuel |
+|:------:|:---:|:---:|
+| 324 |  340 | 372.6 |
+
+### With Mod
+
+  - Increase max speed from 324 to 863
+  - Increase power form 700kW to 2100kW
+  - Increase air resistance from 0.75% to 1.8% 
+  - Increase burner effectivity from 1 to 3 (keeps same output 700k power)
+
+|Track Type| Wood/Coal | Solid Fuel | Rocket Fuel |
+|:----- |:------:|:---:|:---:|
+| Scrap | ? | ?  | ? |
+| Water | 215 | 236.9 | 269.6 |
+| Standard | 255.6 | 281 |  320.4 |
+| Concrete | 288.2 | 317.5 | 361.4 |
+
+## Nuclear Locomotive (More Trains Mod)
+### without modification
+| Uranium |
+|:------:|
+| 302.4 | 
+
+### With Mod
+
+  - Increase max speed from 302.4 to 863
+  - Increase power form 1600kW to 3000kW
+  - Increase air resistance from 0.75% to 2% 
+  - Increase burner effectivity from 1 to 1.875 (keeps same output 1.6MW power)
+
+|Track Type| Uranium |
+|:----- |:------:|
+| Scrap | ? |
+| Water | 213 |
+| Standard | 266.5 |
+| Concrete | 313 |
+
+
+
 ## Nuclear Locomotive (Nuclear Locomotives Mod)
 ### without Modification
 
@@ -93,6 +157,7 @@ This is the table of modifiers used.
   - Increase power from 1200kW to 2400kW
   - Increase max speed from 324 to 863
   - Increase air resistance from 0.75% to 1.0%
+  - Conflicts with More Trains mod; and will use the above values for Nuclear Locomotive in More Trains mod
 
 
 | Track Type | Uranium |

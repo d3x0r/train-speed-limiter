@@ -1,6 +1,6 @@
 {
   "name": "train-speed-limiter",
-  "version": "0.0.702",
+  "version": "0.0.703",
   "factorio_version": "0.15",
   "title": "Train Speed Limiter",
   "author": "d3x0r",
@@ -12,6 +12,7 @@
 	, "? Bio_Industries"
 	, "? BridgeRailway"
 	, "? RailPowerSystem >= 0.1.4" 
+	, "? More Trains"
 	, "? Nuclear Locomotives"
 	, "? angelsaddons-petrotrain" 
         , "? ElectricTrain"

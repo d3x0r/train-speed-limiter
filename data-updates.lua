@@ -49,7 +49,9 @@ data.raw.locomotive.locomotive.burner.effectivity = 2;
 
 -- data.raw["cargo-wagon"]["cargo-wagon"].air_resistance = 0.001;  -- default 0.01
 data.raw["cargo-wagon"]["cargo-wagon"].max_speed = 4; --1.75; -- 378 -- default 1.5 (324)
+data.raw["cargo-wagon"]["cargo-wagon"].air_resistance = 0.05; -- 0.01 default -- need to make sure it's worse to put one ahead of a train
 data.raw["fluid-wagon"]["fluid-wagon"].max_speed = 4; --1.75; -- 378 -- default 1.5 (324)
+data.raw["fluid-wagon"]["fluid-wagon"].air_resistance = 0.05; -- 0.01 default -- need to make sure it's worse to put one ahead of a train
 
 -- solid
 --   2.905 Script data-final-fixes.lua:4: .     fuel_acceleration_multiplier=1.2
@@ -77,10 +79,13 @@ if data.raw.locomotive["JunkTrain"] then
    -- 30.0 scrap rail  57 rocket fuel
    -- 80 & 99.4
 	-- 64kmh 1.0 track
-        data.raw.locomotive.JunkTrain.max_power = "750kW"
+        data.raw.locomotive.JunkTrain.max_power = "900kW"
 	data.raw.locomotive.JunkTrain.max_speed = 1.0;  -- (216) default 0.3 (64)
 	data.raw.locomotive.JunkTrain.air_resistance = 0.05;  -- default 0.03
-	data.raw.locomotive.JunkTrain.burner.effectivity = 2.16667
+	data.raw.locomotive.JunkTrain.burner.effectivity = 3.6;
+
+	data.raw["cargo-wagon"]["ScrapTrailer"].weight = 500; -- 1500 default
+	data.raw["cargo-wagon"]["ScrapTrailer"].max_speed = 0.5; -- 0.4 default
 
 	data.raw["rail-planner"]["scrap-rail"].icon = "__train-speed-limiter__/graphics/icons/scrap-rail.png"
 
@@ -95,8 +100,8 @@ if data.raw.locomotive["hybrid-train"] then
 	data.raw.locomotive["hybrid-train"].max_power = "1750kW";  -- 600kW default
 	--reversing_power_modifier
 	data.raw.locomotive["hybrid-train"].max_speed = 4.0; -- 1.5 default
-	data.raw.locomotive["hybrid-train"].air_resistance = 0.012; -- 0.0075 default
-	data.raw.locomotive["hybrid-train"].burner.effectivity = 2.9167;
+	data.raw.locomotive["hybrid-train"].air_resistance = 0.010; -- 0.0075 default
+	data.raw.locomotive["hybrid-train"].burner.effectivity = 2.91667;
 	data.raw["electric-energy-interface"]["rail-accu"].energy_source.buffer_capacity="30kJ";
 
 end
@@ -108,6 +113,63 @@ if data.raw.locomotive["petro-locomotive-1"] then
 	data.raw.locomotive["petro-locomotive-1"].air_resistance = 0.008;  -- default 0.0075
 	data.raw.locomotive["petro-locomotive-1"].burner.effectivity = 1.5;
 end
+
+if data.raw.locomotive["heavy-locomotive"] then
+	-- weight = 2600
+	  -- water  156.6  172.5  196.4
+          -- standard - 180.1   198  225.9
+          -- concrete - 197.7  218.1  248.2
+	data.raw.locomotive["heavy-locomotive"].max_power = "2200kW";  -- 1100kW default
+	data.raw.locomotive["heavy-locomotive"].max_speed = 4.0;  -- default 0.95  205.2 
+	data.raw.locomotive["heavy-locomotive"].air_resistance = 0.03;  -- default 0.0075
+	data.raw.locomotive["heavy-locomotive"].burner.effectivity = 2;  -- default 1
+
+	-- weight = 2200
+	--  water  215   236.9   269.6
+	--  standard 255.6  281    320.4
+	--  concrete 288.2  317.5  361.4	
+	data.raw.locomotive["express-locomotive"].max_power = "2100kW";  -- 700kW default  (showw as 1166)
+	data.raw.locomotive["express-locomotive"].max_speed = 4.0;  -- default 1.5   324
+	data.raw.locomotive["express-locomotive"].air_resistance = 0.018;  -- default 0.005
+	data.raw.locomotive["express-locomotive"].burner.effectivity = 1.801;  -- default 0.6
+
+        -- weight = 4000
+        -- water      213
+	-- standard   266.5
+        -- concrete   313.5
+	data.raw.locomotive["nuclear-locomotive"].max_power = "3000kW";  -- 1600kW default
+	data.raw.locomotive["nuclear-locomotive"].max_speed = 4.0;  -- default 1.4   302.4
+	data.raw.locomotive["nuclear-locomotive"].air_resistance = 0.020;  -- default 0.0075
+	data.raw.locomotive["nuclear-locomotive"].burner.effectivity = 1.875;  -- default 1
+
+else
+	if data.raw.locomotive["nuclear-locomotive"] then
+	      -- 324kmh unmodified.  (speed cap)
+	    -- scrap rail - 127        115.4
+	    -- 1.0 rail  332           284 
+	    --  concrete rail 360-372   355
+	
+        	data.raw.locomotive["nuclear-locomotive"].max_power = "2400kW"; -- 1200kW default
+		data.raw.locomotive["nuclear-locomotive"].max_speed = 4.0; -- 1.5 default
+		data.raw.locomotive["nuclear-locomotive"].air_resistance = 0.010; -- 0.0075 default
+		data.raw.locomotive["nuclear-locomotive"].burner.effectivity = 1.5;  -- default 1
+	
+		data.raw.locomotive["nuclear-locomotive"].working_light = {
+			color = {
+        			b = 0.0,
+        			g = 0.8,
+				r = 0.0
+			},
+			intensity = 0.8,
+			size = 3
+        	}
+	--	data.raw.locomotive["nuclear-locomotive"].working_visualisations={
+	--		{ effect="uranium-glow", light={intensity=0.6,size=9.9, shift={0,0}, color{r=0,g=1,b=0}}}
+	--	}
+	end
+
+end
+
 
 if data.raw.locomotive["electric-locomotive"] then
 	-- weight = 2000
@@ -334,30 +396,9 @@ if data.raw.locomotive["yir_atom_mitte"] then
 end
 
 
-if data.raw.locomotive["nuclear-locomotive"] then
-      -- 324kmh unmodified.  (speed cap)
-    -- scrap rail - 127        115.4
-    -- 1.0 rail  332           284 
-    --  concrete rail 360-372   355
+--[[
 
-	data.raw.locomotive["nuclear-locomotive"].max_power = "2400kW"; -- 1200kW default
-	data.raw.locomotive["nuclear-locomotive"].max_speed = 4.0; -- 1.5 default
-	data.raw.locomotive["nuclear-locomotive"].air_resistance = 0.010; -- 0.0075 default
-
-	data.raw.locomotive["nuclear-locomotive"].working_light = {
-		color = {
-			b = 0.0,
-			g = 0.8,
-			r = 0.0
-		},
-		intensity = 0.8,
-		size = 3
-	}
---	data.raw.locomotive["nuclear-locomotive"].working_visualisations={
---		{ effect="uranium-glow", light={intensity=0.6,size=9.9, shift={0,0}, color{r=0,g=1,b=0}}}
---	}
-end
-
+]]
 end
 
 --log_keys( data.raw );
