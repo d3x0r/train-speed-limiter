@@ -376,10 +376,18 @@ end
 -- TICK
 ---------------------------------------------------
 local function limitTrain( ticks, index, train ) 
-	local frontRail = train.front_rail;
+	local frontRail;
 	local _lastRail = lastRail[index];
 	local speed = train.speed;
-
+	local negate = false;
+	if speed == 0 then return end
+	if speed < 0 then 
+		negate = true;
+		speed = -speed;
+		frontRail = train.back_rail;
+	else
+		frontRail = train.front_rail;
+	end
 	--log( "train buffer:".. train.max_energy_usage );
 	if( _lastRail ) then
 		if( _lastRail.rail ~= frontRail ) then
@@ -426,7 +434,11 @@ local function limitTrain( ticks, index, train )
 					--log( "to:" .. train.speed );
 				end
 				--log( "update train speed from:" .. lowPrec(train.speed).."("..lowerPrec(train.speed/kpt)..")".." lastSet: ".. lowPrec(lrs).."("..lowerPrec(lrs/kpt)..")" .. " to ".. lowPrec(speed).."("..lowerPrec(speed/kpt)..")".. " + "..lowPrec(speed/lrs) .. " + "..lowPrec(speed/train.speed));
-				train.speed = speed;
+				if negate then
+					train.speed = -speed;
+				else
+					train.speed = speed;
+				end
 				return;
 			end
 		end
@@ -532,10 +544,18 @@ local function limitTrain( ticks, index, train )
 			speed = speed - (( speed-tt.max ) * 0.1 * ticks);
 		end
 		--log( "update train speed from:"..lowPrec(train.speed) .. "("..lowerPrec(train.speed/kpt)..")".. " last:" .. lowPrec(lrs).."("..lowerPrec(lrs/kpt)..")" .. " to ".. lowPrec(speed) .. "("..lowerPrec(speed/kpt)..")".. " + "..lowPrec(speed/lrs) .. " + "..lowPrec(speed/train.speed) );
-		train.speed = speed;
+		if negate then
+			train.speed = -speed;
+		else
+			train.speed = speed;
+		end
 	else
 		--log( "update train speed on:" .. lrs .. " to ".. speed);
-		train.speed = speed;
+		if negate then
+			train.speed = -speed;
+		else
+			train.speed = speed;
+		end
 	end
 
 	--log( 'train: '..train.id..'('..frontLoco.name..') is on:'..frontRail.name );
