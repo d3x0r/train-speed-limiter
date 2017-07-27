@@ -32,6 +32,23 @@ end
 -- 259.1 unmodified(wood)(speedcap)   298.1 unmodified (rocket fuel)
 -- 450 rocket fuel(500max)
 
+-- 219 W-LCCCC   260 S-LCCCC 272 LCC         298.1 R-LCCCC
+-- 2599.2 (MAX) W-LLCCCC , LL CCCC CCCC, 
+-- 110(1), 136(2) W-L CCCC CCCC
+
+-- 2700 267 W-LLCCCC       337 R-LLCCCC
+--    202 W-LLCCCC CCCC
+--    152 W-LCCCC
+--    108 W-LCCCC CCCC
+
+-- cement
+--  179 W-LCCCC     
+--  323 W LLCCCC
+--            171 R-L CCCC CCCC
+--  254 W-LL CCCC CCCC   322 R 
+
+
+
 -- 110 scrap rail  115.7 solid  123 rocket (max rail speed?)
 -- 233 wood, normal  257.5 solid  293.4 rocket
 -- 279 wood, cement  308 wolid   352 rocket fuel
@@ -42,10 +59,10 @@ end
 -- 73, 88, 134 (scrap rails)
 --  169, 205, (302-312) (latest)  (standard rail)
 --  184,      340  (concrete rail)
-data.raw.locomotive.locomotive.max_power = "1200kW";  -- 600kW default
+data.raw.locomotive.locomotive.max_power = "3000kW";  -- 600kW default
 data.raw.locomotive.locomotive.max_speed = 4.0;  -- default 1.2
-data.raw.locomotive.locomotive.air_resistance = 0.008;  -- default 0.0075
-data.raw.locomotive.locomotive.burner.effectivity = 2;
+data.raw.locomotive.locomotive.air_resistance = 0.030;  -- default 0.0075
+data.raw.locomotive.locomotive.burner.effectivity = 5;
 
 -- data.raw["cargo-wagon"]["cargo-wagon"].air_resistance = 0.001;  -- default 0.01
 data.raw["cargo-wagon"]["cargo-wagon"].max_speed = 4; --1.75; -- 378 -- default 1.5 (324)
@@ -518,6 +535,7 @@ if data.raw["straight-rail"]["straight-rail-power"] then
 		        ingredients = { { "copper-cable", 3 }, { "bi-rail-wood-bridge", 1 } },
 		        result = "powered-rail-bridge",
 		        result_count = 1,
+			enabled = false
 		})
 
 		createData("recipe","powered-rail","powered-rail-concrete",
@@ -525,6 +543,7 @@ if data.raw["straight-rail"]["straight-rail-power"] then
 		        ingredients = { { "copper-cable", 3 }, { "rail", 1 } },
 		        result = "powered-rail-concrete",
 		        result_count = 1,
+			enabled = false
 		})
 
 		data.raw.recipe["powered-rail"].ingredients = { { "copper-cable", 3 }, { "bi-rail-wood", 1 } }
