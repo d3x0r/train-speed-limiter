@@ -119,7 +119,9 @@ if data.raw.locomotive["hybrid-train"] then
 	data.raw.locomotive["hybrid-train"].max_speed = 4.0; -- 1.5 default
 	data.raw.locomotive["hybrid-train"].air_resistance = 0.010; -- 0.0075 default
 	data.raw.locomotive["hybrid-train"].burner.effectivity = 2.91667;
-	data.raw["electric-energy-interface"]["rail-accu"].energy_source.buffer_capacity="30kJ";
+	data.raw["electric-energy-interface"]["rail-accu"].energy_source.buffer_capacity="29176.667J";  -- 29,166.667 in reality
+	data.raw["electric-energy-interface"]["rail-accu"].energy_source.input_flow_limit="29176.667J";
+	data.raw["electric-energy-interface"]["rail-accu"].energy_source.output_flow_limit="0kJ";
 
 end
 

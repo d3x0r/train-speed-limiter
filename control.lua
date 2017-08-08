@@ -52,15 +52,18 @@ local track_types = {}
 
 local lastRail = {};
 local lastTick = 0;
+local force_reinit = false;
 
 local enableHybridTick = false;
 local hybridEnergy = 0;
-local hybridLocos = {};
-local hybridEngines = {};
+local hybridLocos = nil;
 
-local temp = false;  -- one time init for tick to sync lastTick
 local backwardRail = {rail_direction=defines.rail_direction.back, rail_connection_direction=defines.rail_connection_direction.straight};
-local previousAccuTable = {};
+local backwardRail1 = {rail_direction=defines.rail_direction.back, rail_connection_direction=defines.rail_connection_direction.left};
+local backwardRail2 = {rail_direction=defines.rail_direction.back, rail_connection_direction=defines.rail_connection_direction.right};
+local forwardRail = {rail_direction=defines.rail_direction.front, rail_connection_direction=defines.rail_connection_direction.straight};
+local forwardRail1 = {rail_direction=defines.rail_direction.front, rail_connection_direction=defines.rail_connection_direction.left};
+local forwardRail2 = {rail_direction=defines.rail_direction.front, rail_connection_direction=defines.rail_connection_direction.right};
 
 
 local function _log_keys(prefix,object)
@@ -204,49 +207,89 @@ local function migrateAccumulators()
 end
 
 
-local function loadEngines( i, train )
+local function loadEngines( train, ltrain )
 	local j;
 
-				--log( "Setup hybrid engines" );
-			--if enableHybridTick then
-				local movers = train.locomotives.front_movers;
-				local added = false;
-				local engines = {};
-				local loco = {};
-				--log_keys( hybridLocos )
-				for j=1,#movers do
-					--log( "FMover:"..movers[j].name );
-					if( movers[j].name == 'hybrid-train' ) then
-						if not added then
-							hybridLocos[i] = { train=train, engines=engines};
-							added = true;
-						end
-						engines[#engines+1] = movers[j];
-					end
-				end
-				local movers = train.locomotives.back_movers;
-				for j=1,#movers do
-					--log( "BMover:"..movers[j].name );
-					if( movers[j].name == 'hybrid-engine' ) then
-						if not added then
-							hybridLocos[i] = { train=train, engines=engines};
-							added = true;
-						end
-						engines[#engines+1] = movers[j];
-					end
-				end
-			--end
+	--log( "Setup hybrid engines" );
+	local movers = train.locomotives.front_movers;
+	local added = false;
+	local engines = nil;
+	--log_keys( hybridLocos )
+	local move = hybridLocos;
+	for j=1,#movers do
+		--log( "FMover:"..movers[j].name );
+		if( movers[j].name == 'hybrid-train' ) then
+			--log( "Add Engine." );
+			engines = {next = engines, engine= movers[j] };
+			if not added then
+				--log( "Add hybrid train itself" );
+				hybridLocos = { train=train, engines=engines, next=hybridLocos};
+				ltrain.hybrid = hybridLocos;
+				added = true;
+			end
+		end
+	end
+	local movers = train.locomotives.back_movers;
+	for j=1,#movers do
+		--log( "BMover:"..movers[j].name );
+		if( movers[j].name == 'hybrid-engine' ) then
+			--log( "Add Engine." );
+			engines = {next = engines, engine= movers[j] };
+			if not added then
+				--log( "Add hybrid train itself" );
+				hybridLocos = { train=train, engines=engines, next=hybridLocos};
+				ltrain.hybrid = hybridLocos;
+				added = true;
+			end
+		end
+	end
+	if( added ) then
+		-- update loco engines, becuase it's a insert at start operation.
+		--log( "updat eengines" );
+		hybridLocos.engines = engines;
+	end
 
 end
 
 
+local function loadTrains()
+	local surfaces = game.surfaces;--players[event.player_index]
+	--log_keys( surfaces );	
+	for name,surface in pairs(surfaces) do
+		local trains = surface.get_trains();		
+		--log( "Surface trains:".. tostring(#trains) .. " "..tostring(enableHybridTick ));
+		for i=1, #trains do
+			local train = trains[i];
+			--log( "Surface add train:" .. trains[i].id );
+			local newTrain = {train=train, lastRail = nil, next=global.trains, hybrid=nil, prior = nil}
+			if global.trains then
+				global.trains.prior = newTrain;
+			end
+			global.trains = newTrain;
+			--log( "added train:"..tostring( newTrain.train.id ) );
+			--log_keys(train.locomotives )
+			if enableHybridTick then
+				loadEngines( train, global.trains );
+			end
+		end
+		
+	end
+end
+
 
 local function glob_init()
 	
-	global.trains = {}
+	global.trains = nil;
 	global.track_types = {};
-	global.hybrid_train_energy_buffer = 0;
-	local index = 1; -- for adding available rail types
+	--global.hybrid_train_energy_buffer = 0;
+
+	if( game.entity_prototypes["hybrid-train"] ) then 	
+		enableHybridTick = true;
+		--log( "RAIL SYSTEM UPGRADE")
+		global.hybrid_train_energy_buffer = game.entity_prototypes["hybrid-train"].max_energy_usage + 10;
+        	hybridEnergy = global.hybrid_train_energy_buffer
+	end
+
 	for name,entity in pairs(game.entity_prototypes) do
 		--log( "check entity:"..entity.type.." : "..entity.name );
 		if entity.type == "straight-rail" then
@@ -287,30 +330,15 @@ local function glob_init()
 			elseif entity.name == "straight-rail" then
 				--log( "add type standard" );
 				global.track_types[#global.track_types+1] = "standard";
+			else
+				log( "unhandled track type:".. entity.name );
 			end
-
 		end
 	end
 
 	setupTypes();
-
-	local surfaces = game.surfaces;--players[event.player_index]
-	--log_keys( surfaces );	
-	for name,surface in pairs(surfaces) do
-		local trains = surface.get_trains();		
-		--log( "Surface trains:".. tostring(#trains) .. " "..tostring(enableHybridTick ));
-		for i=1, #trains do
-			local train = trains[i];
-			--log( "Surface add train:" .. trains[i].id );
-			global.trains[i] = train;
-			--log_keys(train.locomotives )
-			if enableHybridTick then
-				loadEngines( i, train );
-			end
-		end
-		
-	end
 	migrateAccumulators();
+	loadTrains();
 end
 
 local function setupEvents()
@@ -320,7 +348,7 @@ local function setupEvents()
 ---------------------------------------------------
 	if game.entity_prototypes["hybrid-train"] and game.entity_prototypes["bi-straight-rail-wood"] then
 		function OnBuildEntity(entity)
-		-- remove automatic connected cables
+			-- remove automatic connected cables
 			--log( "something1:".. entity.name );
 			onGlobalBuilt(entity)
 			--log_keys( entities );
@@ -375,78 +403,85 @@ end
 ---------------------------------------------------
 -- TICK
 ---------------------------------------------------
-local function limitTrain( ticks, index, train ) 
-	local frontRail;
-	local _lastRail = lastRail[index];
-	local speed = train.speed;
-	local negate = false;
-	if speed == 0 then return end
-	if speed < 0 then 
-		negate = true;
-		speed = -speed;
-		frontRail = train.back_rail;
-	else
-		frontRail = train.front_rail;
-	end
-	--log( "train buffer:".. train.max_energy_usage );
-	if( _lastRail ) then
-		if( _lastRail.rail ~= frontRail ) then
-			--log( "New Rail..." );
-			_lastRail.rail = frontRail;
-		else
-			local lrs = _lastRail.speed;
-			_lastRail.speed = speed;
-			local tt = _lastRail.type;
-			if tt then
-				--[[if speed < (lrs ) then -- * 0.97
-					if flyingTextShow <= 0 then
-					         game.players[1].print( "Cur: "..lowPrec(speed) .. "("..lowerPrec(speed/kpt)..") Prior:"..lowPrec(lrs).. "("..lowerPrec(lrs/kpt)..") delta:"..lowPrec(speed-lrs).."("..lowerPrec((speed-lrs)/kpt)..")" )
-					         --game.surfaces[1].create_entity{name = "flying-text", position = {train.locomotives.front_movers[1].position.x+1,train.locomotives.front_movers[1].position.y-2}, text = {"Cur: "..speed .. "("..speed/kpt..") Prior:"..lrs.. "("..lrs/kpt..") delta:"..(speed-lrs).."("..(speed-lrs)/kpt..")" }, color = {r=1,g=1,b=1}}
-						flyingTextShow = 60;
+local function limitTrains( ticks ) 
+	--log( "---- LIMIT TRAINS------".. tostring( global.trains ) );
+	local ltrain = global.trains;
+	while ltrain do
+		local train = ltrain.train;
+		--log( "Train :"..tostring(ltrain).." or ".. tostring(ltrain.train.locomotives.front_movers[1].name) .. " or " .. ltrain.train.id);
+		repeat
+			if( train.valid ) then
+				local frontRail;
+				local _lastRail = ltrain.lastRail;
+				local speed = train.speed;
+				local negate = false;
+				if speed == 0 then break end
+				if speed < 0 then 
+					negate = true;
+					speed = -speed;
+					frontRail = train.back_rail;
+				else
+					frontRail = train.front_rail;
+				end
+				--log( "train buffer:".. train.max_energy_usage );
+				if _lastRail then
+					if( _lastRail.rail ~= frontRail ) then
+						--log( "New Rail..." );
+						_lastRail.rail = frontRail;
 					else
-						if( flyingTextShow > 0 ) then
-							flyingTextShow = flyingTextShow - 1; 
+						local lrs = _lastRail.speed;
+						_lastRail.speed = speed;
+						local tt = _lastRail.type;
+						if tt then
+							--[[if speed < (lrs ) then -- * 0.97
+								if flyingTextShow <= 0 then
+								         game.players[1].print( "Cur: "..lowPrec(speed) .. "("..lowerPrec(speed/kpt)..") Prior:"..lowPrec(lrs).. "("..lowerPrec(lrs/kpt)..") delta:"..lowPrec(speed-lrs).."("..lowerPrec((speed-lrs)/kpt)..")" )
+								         --game.surfaces[1].create_entity{name = "flying-text", position = {train.locomotives.front_movers[1].position.x+1,train.locomotives.front_movers[1].position.y-2}, text = {"Cur: "..speed .. "("..speed/kpt..") Prior:"..lrs.. "("..lrs/kpt..") delta:"..(speed-lrs).."("..(speed-lrs)/kpt..")" }, color = {r=1,g=1,b=1}}
+									flyingTextShow = 60;
+								else
+									if( flyingTextShow > 0 ) then
+										flyingTextShow = flyingTextShow - 1; 
+									end
+								end
+							end--]]
+							--log( "speed input is part of last speed?".. lowPrec( lrs/speed ) .. " : ".. lowPrec( speed ) .. " > ".. lowPrec( lrs ).. " ... ".. lowPrec( speed/lrs ) );
+							--log( "speed input is part of last speed?".. tostring(_lastRail.slowing).. "  ".. lowPrec( speed/lrs ) .. "     ".. lowerPrec(speed/kpt) );
+							if( (speed ) > lrs ) then 
+								--log( "(ST)update train speed on:" .. tt.name .. " by ".. tt.q .. " from ".. lowPrec(train.speed) .. "("..lowerPrec(train.speed/kpt)..")" );
+								speed = speed * (tt.q);
+								if( speed/lrs < 1.001 ) then
+									--log( "RESET SLOWING" );
+									_lastRail.slowing = false;
+								end
+							else
+								if( _lastRail.slowing and (speed/lrs) > 0.994 ) then
+									speed = speed * (tt.q) * 0.95;
+								else
+									--log( "RESET SLOWING" );
+									_lastRail.slowing = false;
+								end
+								--log( "SLOWING" )
+							end
+							if( speed > tt.max ) then
+								--log( "(ST)Overspeed" );
+								speed = speed - (( speed-tt.max ) * 0.1);
+								--train.speed = _lastRail.type.max;
+								--log( "to:" .. train.speed );
+							end
+							--log( "update train speed from:" .. lowPrec(train.speed).."("..lowerPrec(train.speed/kpt)..")".." lastSet: ".. lowPrec(lrs).."("..lowerPrec(lrs/kpt)..")" .. " to ".. lowPrec(speed).."("..lowerPrec(speed/kpt)..")".. " + "..lowPrec(speed/lrs) .. " + "..lowPrec(speed/train.speed));
+							if negate then
+								train.speed = -speed;
+							else
+								train.speed = speed;
+							end
+							break;
 						end
 					end
-				end--]]
-				--log( "speed input is part of last speed?".. lowPrec( lrs/speed ) .. " : ".. lowPrec( speed ) .. " > ".. lowPrec( lrs ).. " ... ".. lowPrec( speed/lrs ) );
-				--log( "speed input is part of last speed?".. tostring(_lastRail.slowing).. "  ".. lowPrec( speed/lrs ) .. "     ".. lowerPrec(speed/kpt) );
-				if( (speed ) > lrs ) then 
-					--log( "(ST)update train speed on:" .. tt.name .. " by ".. tt.q .. " from ".. lowPrec(train.speed) .. "("..lowerPrec(train.speed/kpt)..")" );
-					speed = speed * (tt.q);
-					if( speed/lrs < 1.001 ) then
-						--log( "RESET SLOWING" );
-						_lastRail.slowing = false;
-					end
-				else
-					if( _lastRail.slowing and (speed/lrs) > 0.994 ) then
-						speed = speed * (tt.q) * 0.95;
-					else
-						--log( "RESET SLOWING" );
-						_lastRail.slowing = false;
-					end
-					--log( "SLOWING" )
+				else 
+					ltrain.lastRail = { rail=frontRail, slowing = false, type = nil, speed = speed }
+					_lastRail = ltrain.lastRail;
 				end
-				if( speed > tt.max ) then
-					--log( "(ST)Overspeed" );
-					speed = speed - (( speed-tt.max ) * 0.1 * ticks);
-					--train.speed = _lastRail.type.max;
-					--log( "to:" .. train.speed );
-				end
-				--log( "update train speed from:" .. lowPrec(train.speed).."("..lowerPrec(train.speed/kpt)..")".." lastSet: ".. lowPrec(lrs).."("..lowerPrec(lrs/kpt)..")" .. " to ".. lowPrec(speed).."("..lowerPrec(speed/kpt)..")".. " + "..lowPrec(speed/lrs) .. " + "..lowPrec(speed/train.speed));
-				if negate then
-					train.speed = -speed;
-				else
-					train.speed = speed;
-				end
-				return;
-			end
-		end
-	else 
-		lastRail[index] = { rail=frontRail, slowing = false, type = nil, speed = speed }
-		_lastRail = lastRail[index];
-	end
-			
+						
 
 --	local frontLoco = train.locomotives.front_movers[1];
 --	if not frontLoco then
@@ -471,126 +506,167 @@ local function limitTrain( ticks, index, train )
 			--log( "no current fuel." );
 --		end
 --	end
-	
-	-- vehicle does not mean train... must be car or player
-	---if( index == 2 ) then 
-	--   log( "riding  State:".. tostring(frontLoco.riding_state )); 
-	--end
-	local lrs = _lastRail.speed;
-	_lastRail.speed = speed;
-
-	if( speed > 0.001 ) then
-		local tt;
-		local fasterTrack = false;
-		--log( "Increase ".. tostring( speed >= lrs ) .. " speed:"..speed.." old:".. lrs );
-			for i=1, #track_types do
-				tt = track_types[i];
-				--log( "track type check:"..tt.name..  " == "..frontRail.name );
-				if( tt.name == frontRail.name ) then
-					--[[if _lastRail.type then
-						if( tt.q > _lastRail.type.q ) then
-							--log( "FASTER" );
-							fasterTrack = true;
-						end
-					end ]]
-					if _lastRail.type then
-						if( tt.q < _lastRail.type.q ) then
-							--log( "SET SLOWING" );
-							_lastRail.slowing = true;
-						elseif( tt.q > _lastRail.type.q ) then
-							--log( "RESET SLOWING" );
+				
+				-- vehicle does not mean train... must be car or player
+				---if( index == 2 ) then 
+				--   log( "riding  State:".. tostring(frontLoco.riding_state )); 
+				--end
+				local lrs = _lastRail.speed;
+                        	_lastRail.speed = speed;
+			
+				if( speed > 0.001 ) then
+					local tt;
+					local fasterTrack = false;
+					--log( "Increase ".. tostring( speed >= lrs ) .. " speed:"..speed.." old:".. lrs );
+						for i=1, #track_types do
+							tt = track_types[i];
+							--log( "track type check:"..tt.name..  " == "..frontRail.name );
+							if( tt.name == frontRail.name ) then
+								--[[if _lastRail.type then
+									if( tt.q > _lastRail.type.q ) then
+										--log( "FASTER" );
+										fasterTrack = true;
+									end
+								end ]]
+								if _lastRail.type then
+									if( tt.q < _lastRail.type.q ) then
+										--log( "SET SLOWING" );
+										_lastRail.slowing = true;
+									elseif( tt.q > _lastRail.type.q ) then
+										--log( "RESET SLOWING" );
+										_lastRail.slowing = false;
+									end
+								end
+								_lastRail.type = tt;
+								break;
+							end
+                        			end
+			
+					--[[if( speed < (lrs) ) then --* 0.97
+						if flyingTextShow <= 0 then
+						         game.players[1].print( "Cur: "..lowPrec(speed) .. "("..lowerPrec(speed/kpt)..") Prior:"..lowPrec(lrs).. "("..lowerPrec(lrs/kpt)..") delta:"..lowPrec(speed-lrs).."("..lowerPrec((speed-lrs)/kpt)..")" )
+							flyingTextShow = 60;
+						else
+							if( flyingTextShow > 0 ) then
+								flyingTextShow = flyingTextShow - 1; 
+							end
+                        			end
+			
+						log( "SLOWER:".. train.speed.. "something:".. tt.max.. " Q:"..tt.q );
+						
+					end--]]
+					--log( "speed input is part of last speed?".. lowPrec( lrs/speed ) .. " : ".. lowPrec( speed ) .. " > ".. lowPrec( lrs ).. " ... ".. lowPrec( speed/lrs ) );
+					--log( "speed input is part of last speed?".. tostring(_lastRail.slowing).. "  ".. lowPrec( speed/lrs ) .. "     ".. lowerPrec(speed/kpt));
+					if( (speed) > lrs ) then --* 0.97
+						--log( "train speed:".. lowPrec(train.speed).."("..lowerPrec(train.speed/kpt)..")".. "  something:".. tt.max.. " Q:"..tt.q );
+						speed = speed * (tt.q);           
+						--log( "After modification...".. lowPrec( speed/lrs ) );
+						if( speed/lrs < tt.q + 0.000001 ) then
+							--log( "RESET SLOWING".. speed/lrs );
 							_lastRail.slowing = false;
 						end
+						--log( "update train speed on:" .. " by ".. tt.q .. " from ".. lowPrec(train.speed).."("..lowerPrec(train.speed/kpt)..")" .. " to ".. lowPrec(speed).."("..lowerPrec(speed/kpt)..")" );
+						--log( "set train speed" .. train.id .. " to "..speed.. "ticks:" ..ticks );
+					else
+						if( _lastRail.slowing and (speed/lrs) > 0.994 ) then
+							speed = speed * (tt.q);
+							--log( "After modification...".. lowPrec( speed/lrs ) );
+						end
+						--log( "SLOWER:".. train.speed.. "something:".. tt.max.. " Q:"..tt.q );
 					end
-					_lastRail.type = tt;
-					break;
+					if( speed > tt.max ) then
+						--log( "OverSpeed!" );
+						speed = speed - (( speed-tt.max ) * 0.1);
+					end
+					--log( "update train speed from:"..lowPrec(train.speed) .. "("..lowerPrec(train.speed/kpt)..")".. " last:" .. lowPrec(lrs).."("..lowerPrec(lrs/kpt)..")" .. " to ".. lowPrec(speed) .. "("..lowerPrec(speed/kpt)..")".. " + "..lowPrec(speed/lrs) .. " + "..lowPrec(speed/train.speed) );
+					if negate then
+						train.speed = -speed;
+					else
+						train.speed = speed;
+					end
+				else
+					--log( "update train speed on:" .. lrs .. " to ".. speed);
+					if negate then
+						train.speed = -speed;
+					else
+						train.speed = speed;
+					end
+                        	end
+                        
+			else 
+				--log( "skipping train (internal index):" );
+				if not ltrain.prior then global.trains = ltrain.next;
+				else ltrain.prior.next = ltrain.next; end
+				if ltrain.next then ltrain.next.prior = ltrain.prior; end
+				if( ltrain.hybrid ) then
+					local hb = ltrain.hybrid;
+					if hb.next then hb.next.prior = hb.prior; end
+					if hb.prior then hb.prior.next = hb.next; else hybridLocos = hb.next; end
 				end
 			end
-
-		--[[if( speed < (lrs) ) then --* 0.97
-			if flyingTextShow <= 0 then
-			         game.players[1].print( "Cur: "..lowPrec(speed) .. "("..lowerPrec(speed/kpt)..") Prior:"..lowPrec(lrs).. "("..lowerPrec(lrs/kpt)..") delta:"..lowPrec(speed-lrs).."("..lowerPrec((speed-lrs)/kpt)..")" )
-				flyingTextShow = 60;
-			else
-				if( flyingTextShow > 0 ) then
-					flyingTextShow = flyingTextShow - 1; 
-				end
-			end
-
-			log( "SLOWER:".. train.speed.. "something:".. tt.max.. " Q:"..tt.q );
-			
-		end--]]
-		--log( "speed input is part of last speed?".. lowPrec( lrs/speed ) .. " : ".. lowPrec( speed ) .. " > ".. lowPrec( lrs ).. " ... ".. lowPrec( speed/lrs ) );
-		--log( "speed input is part of last speed?".. tostring(_lastRail.slowing).. "  ".. lowPrec( speed/lrs ) .. "     ".. lowerPrec(speed/kpt));
-		if( (speed) > lrs ) then --* 0.97
-			--log( "train speed:".. lowPrec(train.speed).."("..lowerPrec(train.speed/kpt)..")".. "  something:".. tt.max.. " Q:"..tt.q );
-			speed = speed * (tt.q);           
-			--log( "After modification...".. lowPrec( speed/lrs ) );
-			if( speed/lrs < tt.q + 0.000001 ) then
-				--log( "RESET SLOWING".. speed/lrs );
-				_lastRail.slowing = false;
-			end
-			--log( "update train speed on:" .. " by ".. tt.q .. " from ".. lowPrec(train.speed).."("..lowerPrec(train.speed/kpt)..")" .. " to ".. lowPrec(speed).."("..lowerPrec(speed/kpt)..")" );
-			--log( "set train speed" .. train.id .. " to "..speed.. "ticks:" ..ticks );
-		else
-			if( _lastRail.slowing and (speed/lrs) > 0.994 ) then
-				speed = speed * (tt.q);
-				--log( "After modification...".. lowPrec( speed/lrs ) );
-			end
-			--log( "SLOWER:".. train.speed.. "something:".. tt.max.. " Q:"..tt.q );
-		end
-		if( speed > tt.max ) then
-			--log( "OverSpeed!" );
-			speed = speed - (( speed-tt.max ) * 0.1 * ticks);
-		end
-		--log( "update train speed from:"..lowPrec(train.speed) .. "("..lowerPrec(train.speed/kpt)..")".. " last:" .. lowPrec(lrs).."("..lowerPrec(lrs/kpt)..")" .. " to ".. lowPrec(speed) .. "("..lowerPrec(speed/kpt)..")".. " + "..lowPrec(speed/lrs) .. " + "..lowPrec(speed/train.speed) );
-		if negate then
-			train.speed = -speed;
-		else
-			train.speed = speed;
-		end
-	else
-		--log( "update train speed on:" .. lrs .. " to ".. speed);
-		if negate then
-			train.speed = -speed;
-		else
-			train.speed = speed;
-		end
+		until true
+		ltrain = ltrain.next;
 	end
+
 
 	--log( 'train: '..train.id..'('..frontLoco.name..') is on:'..frontRail.name );
 end
 
-
 script.on_event(defines.events.on_tick, function(event)
 	--if event.research.name==trainWhistleTech then
 	--log( "active trains:"..#global.trains);
+
 	local ticks = 0;
 	if lastTick == 0 then
+		setupEvents();
+		--log( "first tick...".. tostring(lastTick ) );
+		if force_reinit then	
+			global.trains = nil;
+			hybridLocos = nil;
+			loadTrains();
+			--glob_init();
+		end
+
 		lastTick = event.tick;
 		return;
 	end
-	ticks = event.tick - lastTick;
+	--ticks = event.tick - lastTick;
 	lastTick = event.tick;
 	if( enableHybridTick ) then
-		--log( "Previous accums:".. #previousAccuTable );
-		--for i=1, #previousAccuTable do
-		--	local accum = previousAccuTable[i];
-		--	if accum.valid then
-		--		log( "Clear electric_drawin on prior" );
-		--		accum.electric_drain=0
-		--	end
-		--end
-		--previousAccuTable = {};
-		local index = 1;
-		for i,loco in pairs( hybridLocos)  do
-			local train = loco.train;
-			local rail = train.front_rail;
-			for j=1, #loco.engines do
-				local engine = loco.engines[j];
+		--log( "Tick with Hybrid" );
+		--logAccumulators();
+		local loco = hybridLocos;
+		while loco do
+			local _rail = nil;
+			--local F = 0;
+			--local B = 0;
+			local rail = loco.train.front_rail;
+			local lengine = loco.engines;
+			--log( "Refil loco engines.----------------------" );
+			--local count = 1;
+			while lengine do
+				local engine = lengine.engine;
 				local requiredPower=hybridEnergy-engine.energy;
 				local ghostAccu=ghostRailAccu(rail)
-				--log( "Rail:".. tostring(rail.name).. " train has ".. engine.energy.. " accum has:".. ghostAccu.energy .. " draining:"..ghostAccu.electric_drain );
+				--log( "Rail:".. tostring(rail.name).. " train has ".. engine.energy.. " accum has:".. ghostAccu.energy .. " draining:"..ghostAccu.electric_drain .." GApos:"..ghostAccu.position.x..","..ghostAccu.position.y .." Railpos:"..rail.position.x..","..rail.position.y );
+--[[
+				if( event.tick%60 == 0 )then
+					local c;
+
+					if B == 0 and F==0 then c = {r=1,g=1,b=1};
+					elseif B==1 then c = {r=1,g=0,b=0};
+					elseif B==2 then c =  {r=0,g=1,b=0};
+					elseif B==3 then c =  {r=0,g=0,b=1};
+					elseif F==1 then c = {r=1,g=1,b=0};
+					elseif F==2 then c =  {r=0,g=1,b=1};
+					elseif F==3 then c =  {r=1,g=0,b=1};
+					end
+					game.surfaces[1].create_entity{name = "flying-text"
+							, position = {rail.position.x + (count/2),rail.position.y}
+							, text = tostring(count)
+							, color = c}
+				end
+]]
 				if ghostAccu then
 					local max_power = ghostAccu.energy
 					local power_transfer = 0
@@ -600,37 +676,61 @@ script.on_event(defines.events.on_tick, function(event)
 						power_transfer = requiredPower
 					end
 				  
---					ghostAccu.electric_drain = power_transfer
 					--  Transfer energy that will be drained over the next second into some entity
 					engine.energy = engine.energy + power_transfer
 					ghostAccu.energy=max_power-power_transfer
-					previousAccuTable[index ] = ghostAccu;
-					index = index+1;
 				end
 				
-				rail = rail.get_connected_rail(backwardRail)
-				if not rail then break end
+				lengine = lengine.next;
+				--count = count + 1;
+				if lengine then
+					local next;
+					--F=0;B=1;
+					next = rail.get_connected_rail(backwardRail)
+					if not next then 
+						--B=2;
+						--log( "Failed to get another rail0?"..tostring(rail) );
+						next = rail.get_connected_rail(backwardRail1)
+						if not next then
+							--B=3;
+							--log( "Failed to get another rail1?"..tostring(rail) );
+							next = rail.get_connected_rail(backwardRail2)
+							if not next then				
+								--log( "Failed to get another rail2?"..tostring(rail) );
+								--break 
+							end
+						end
+					end
+					if not next or next == _rail then
+						--B=0;F=1;
+						next = rail.get_connected_rail(forwardRail)
+						if not next then 
+							--F=2;
+							--log( "Failed to get another rail0?"..tostring(rail) );
+							next = rail.get_connected_rail(forwardRail1)
+							if not next then
+								--F=3;
+								--log( "Failed to get another rail1?"..tostring(rail) );
+								next = rail.get_connected_rail(forwardRail2)
+								if not next then
+									--log( "Failed to get another rail2?"..tostring(rail) );
+									break; 
+								end
+							end
+						end
+					end
+					_rail = rail;
+					rail = next;
+				end
 			end
+			loco = loco.next;
 		end
 		--logAccumulators();
 	end
-	if not temp then 
-		--log( "process: ".. #global.trains );
-		--log_keys( data.raw.entity.locomotive )
-		setupEvents();
-		temp = true;
-	end
 	--log( "TICKS: ".. ticks );
-	for i=1,#global.trains do
-		if global.trains[i] then
-			if( global.trains[i].valid ) then
-				limitTrain( ticks, i, global.trains[i] );		
-			else 
-				--log( "skipping train (internal index):".. i );
-				global.trains[i] = nil;
-			end
-		end
-	end
+	--logAccumulators();
+
+	limitTrains();
 	--end
 end)
 
@@ -646,20 +746,30 @@ script.on_event(defines.events.on_train_created, function(event)
 	
 	if event.old_train_id_1 then
 		--log( "check total: ".. #global.trains );
-		for i = 1, #global.trains do
+		local ltrain = global.trains;
+		while ltrain do 
 			--log( "check slot: ".. i );
-			if global.trains[i] then
-				if not global.trains[i].valid then
-					--log( " clear slot:"..i );
-					global.trains[i] = nil;
-					if enableHybridTick then
-						hybridLocos[i] = nil;
-					end
+			if not ltrain.train.valid then
+				--log( " clear bad train:" );
+				if not ltrain.prior then 
+					global.trains = ltrain.next;
+				else
+					ltrain.prior.next = train.next;
+				end
+				if ltrain.next then
+					ltrain.next.prior = ltrain.prior;
+				end
+				if( ltrain.hybrid ) then
+					local hb = ltrain.hybrid;
+					if hb.next then hb.next.prior = hb.prior; end
+					if hb.prior then hb.prior.next = hb.next; else hybridLocos = hb.next; end
 				end
 			end
+			ltrain = ltrain.next
 		end
 	end
 	if not train.valid then
+		log( "This train itself is not valid... don't do anything" );
 		return
 	end
 
@@ -697,31 +807,22 @@ script.on_event(defines.events.on_train_created, function(event)
 
 	-- car only.
 	--log( "Inertial stuff:"..train.locomotives.front_movers[1].effectivity_modifier .. "  consump:"..train.locomotives.front_movers[1].consumption_modifier .."  fict:"..train.locomotives.front_movers[1].friction_modifier );
-
-	for i=1, #global.trains do
-		if global.trains[i] == train then
-			log( "train already tracked in global:"..train.id);
-			return;
+	local ltrain = global.trains;
+	while ltrain do 
+		if ltrain.train == global.trains then
+			--log( "train already tracked in global:"..train.id);
 		end
+		ltrain = ltrain.next;
 	end
-	--log( " slots:".. #global.trains );
-	for i=1, #global.trains do
-		--log( " empty slot?"..i );
-		if not global.trains[i] then
-			--log( "filling train into missing slot." );
-			global.trains[i] = train;
 
-			if enableHybridTick then
-				loadEngines( i, train );
-			end
-			return;
-		end
+	local newTrain = { train=train, lastRail=nil, next = global.trains, hybrid=nil, prior = nil };
+	if global.trains then
+		global.trains.prior = newTrain;
 	end
-	--log( "filling train into last slot.".. (#global.trains+1) );
-	i = #global.trains+1;
-	global.trains[i] = train;
+	global.trains = newTrain;
 	if enableHybridTick then
-		loadEngines( i, train );
+		--log( "reload engines for this train." );
+		loadEngines( train, global.trains );
 	end
 end )
 
@@ -732,11 +833,29 @@ script.on_event(defines.events.on_player_mined_entity, function(event)
 	if( event.entity.type == "locomotive" ) then
 		local train = event.entity.train;
 		if not train then return end
-		for i=1, #global.trains do
-			if global.trains[i] == train then
+		local ltrain = global.trains;
+		while ltrain do
+			if ltrain.train == train then
 				--log( "Found train to remove".. i );
-				global.trains[i] = nil;
-				hybridLocos[i] = nil;
+				if ltrain.prior then
+					ltrain.prior.enxt = ltrain.next;
+				else
+					global.trains = ltrain.next;
+				end
+				if ltrain.next then
+					ltrain.next.prior = ltrain.prior;
+				end;
+				local hbTrain = ltrian.hybrid;
+				if hbTrain then
+					if hbTrain.next then
+						hbTrain.next.prior = hbTrain.prior;
+					end;
+					if hbTrain.prior then
+						hbTrain.prior.next = hbTrain.next;
+					else
+						hybridLocos = hbTrain.next;
+					end
+				end
 			end
 		end
 	
@@ -776,11 +895,13 @@ function enableBlueprintFix()
 	        
 		local entities = stack.get_blueprint_entities()
 		--log( "blueprint has entities:".. #entities );
+		if entities then
 		for k, entity in pairs (entities) do
 			if entity.name == ghostElectricPole then
 				entity.name = railPole;
 				items_changed = true;
 			end
+		end
 		end
 	        
 		local blueprint_icons = player.cursor_stack.blueprint_icons
@@ -809,8 +930,10 @@ end
 
 script.on_init(function()
 	--log( "ON INIT" );
+
 	glob_init()
 end)
+
 
 script.on_load(function()
 	-- game is not available.
@@ -819,31 +942,54 @@ script.on_load(function()
 	--log( "ON LOAD" );
 	--if game then log( "HAVE GAME" ) else log( "NO GAME" ) end
 	setupTypes();
+	if global.trains then
+		if not global.trains.train then			
+			force_reinit = true;
+		else
+			local train = global.trains;
+			while train do
+				if train.hybrid then
+					--log( "Found hybrid train in global." );
+					local h = train.hybrid;
+					while h.prior do h = h.prior; end
+					hybridLocos = h;
+					break
+				end
+				train = train.next;
+			end
+		end
+	end
 	hybridEnergy = global.hybrid_train_energy_buffer
-        enableHybridTick = ( hybridEnergy ~= 0 )
+	--log( "hybridEnergy is:".. tostring(hybridEnergy));
+	if hybridEnergy then
+	        enableHybridTick = true
+	end
 end)
 
 
 script.on_configuration_changed( function()
 	--log( "CONFIGURATION CHANGED" );
+	if force_reinit then	
+			global.trains = nil;
+			hybridLocos = nil;
+			--glob_init();
+	end
 	local mods = game.active_mods;
 	for mod,version in pairs(mods) do
-		log( "Mod:"..mod.." "..version )
+		--log( "Mod:"..mod.." "..version )
 		if( mod == 'RailPowerSystem' ) then
 			--if( version == '0.1.4' ) then
-				enableHybridTick = true;
-				--log( "RAIL SYSTEM UPGRADE")
-                                global.hybrid_train_energy_buffer = game.entity_prototypes["hybrid-train"].max_energy_usage + 10;
-                                hybridEnergy = global.hybrid_train_energy_buffer
+			enableHybridTick = true;
+			--log( "RAIL SYSTEM UPGRADE")
+			global.hybrid_train_energy_buffer = game.entity_prototypes["hybrid-train"].max_energy_usage + 10;
+			hybridEnergy = global.hybrid_train_energy_buffer
+			if( version == '0.1.4' ) then
 				enableBlueprintFix();
-			--end
-		elseif( mod == 'JunkTrain' ) then
-			if( version == '0.0.9' ) then
-				--log_keys( game );
-				--game.prototype
 			end
+		elseif( mod == 'JunkTrain' ) then
 		end
 	end	
 	glob_init()
+	force_reinit = false;
 end)
 

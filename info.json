@@ -1,17 +1,17 @@
 {
   "name": "train-speed-limiter",
-  "version": "0.0.703",
+  "version": "0.0.704",
   "factorio_version": "0.15",
   "title": "Train Speed Limiter",
   "author": "d3x0r",
   "contact": "",
   "homepage": "https://forums.factorio.com/viewtopic.php?f=91&t=51104",
   "description": "Applies speed bonuses/penalties to train speeds based on track type.",
-  "dependencies": ["base >= 0.12.35"
+  "dependencies": ["base >= 0.15.31"
 		, "? JunkTrain"
 	, "? Bio_Industries"
 	, "? BridgeRailway"
-	, "? RailPowerSystem >= 0.1.4" 
+	, "? RailPowerSystem >= 0.1.5" 
 	, "? More-Locomotives"
 	, "? Nuclear Locomotives"
 	, "? angelsaddons-petrotrain" 
