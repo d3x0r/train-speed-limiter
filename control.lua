@@ -377,7 +377,7 @@ local function setupEvents()
 			OnPreRemoveEntity(event.entity)
 		end)
 
-		script.on_event(defines.events.on_preplayer_mined_item, function(event)
+		script.on_event(defines.events.on_pre_player_mined_item, function(event)
 			OnPreRemoveEntity(event.entity)
 		end)
 	end
